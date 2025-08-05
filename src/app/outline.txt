@@ -1,0 +1,14 @@
+So wthe features:
+
+
+The data structure.
+We track the  the one array.
+
+We have a number of colors, default is 2.
+We have a set of rules. Each rule has length.
+
+Total number of rules = Num Colors ^ length
+
+We iterate through neighbors and for each position we apply the rules, yielding new array.
+
+
