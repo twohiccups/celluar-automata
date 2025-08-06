@@ -2,4 +2,11 @@ Issues:
 
 * High Speed + Large Width = Unstraight diagonal lines
 --- Reproduce: 8888779, rule legnth 3, num states - 4, scroll speed 1, 
---- Flicker
+* Flicker
+* Large Inputs
+
+
+
+
+TODO
+* Mobile layout

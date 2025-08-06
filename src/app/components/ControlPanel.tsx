@@ -117,7 +117,7 @@ function LogicalWidthSelector() {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newWidth = Number(e.target.value);
         setLogicalWidth(newWidth);
-        initializeState(InitializationMode.CENTER); // Reset canvas to fill space
+        initializeState(); // Reset canvas to fill space
     };
 
     return (
@@ -141,25 +141,40 @@ function LogicalWidthSelector() {
 
 
 function ScrollSpeedSelector() {
-    const { scrollSpeed, setScrollSpeed } = useCelluarContext()
+    const { scrollSpeed, setScrollSpeed } = useCelluarContext();
+
+    const min = 1;
+    const max = 150;
+
+    // Invert value so that left = slow, right = fast
+    const displayedValue = max + min - scrollSpeed;
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const rawValue = Number(e.target.value);
+        const inverted = max + min - rawValue;
+        setScrollSpeed(inverted);
+    };
+
     return (
         <section className="mt-6">
             <h3 className="text-lg font-semibold mb-2">Scroll Speed</h3>
-            <input
-                type="range"
-                min={1}
-                max={150}
-                step={1}
-                value={scrollSpeed}
-                onChange={(e) => setScrollSpeed(Number(e.target.value))}
-                className="w-full"
-            />
-            <div className="text-sm text-gray-600 mt-1">
-                {scrollSpeed}
+            <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600 shrink-0">Slower</span>
+                <input
+                    type="range"
+                    min={min}
+                    max={max}
+                    step={1}
+                    value={displayedValue}
+                    onChange={handleChange}
+                    className="w-full"
+                />
+                <span className="text-sm text-gray-600 shrink-0">Faster</span>
             </div>
         </section>
     );
 }
+
 
 export default function ControlPanel() {
 
@@ -167,14 +182,14 @@ export default function ControlPanel() {
 
     return (
         <div className="mb-6 p-4 bg-gray-50 rounded shadow">
-            <ScrollSpeedSelector />
-            <LogicalWidthSelector />
+            <RuleInput />
+            <RuleConfigSelectors />
+            <RuleEditor />
             <InitializationSelector />
             <EdgeModeSelector />
-            <RuleConfigSelectors />
-            <RuleInput />
+            <LogicalWidthSelector />
+            <ScrollSpeedSelector />
             <ColorThemeSelector />
-            <RuleEditor />
         </div>
     );
 }

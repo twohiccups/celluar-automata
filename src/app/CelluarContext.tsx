@@ -41,7 +41,7 @@ interface CelluarContextProps {
     generateRuleSet: () => void;
     selectRule: (ruleNumber: number) => void;
     updateRule: (key: string, newValue?: string) => void;
-    initializeState: (mode: InitializationMode) => void;
+    initializeState: () => void;
     nextStep: () => void;
     setup: (rule: number, mode: InitializationMode) => void;
 
