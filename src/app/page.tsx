@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { CelluarContextProvider } from '@/app/CelluarContext';
 import CanvasAutomaton from '@/app/components/CanvasAutomaton';
 import ControlPanel from '@/app/components/ControlPanel';

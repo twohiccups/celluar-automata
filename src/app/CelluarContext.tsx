@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, ReactNode, useContext, useState } from 'react';
+import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 
 import { themes, ThemeName } from '@/app/themes';
 
@@ -30,6 +30,7 @@ interface CelluarContextProps {
     ruleLength: number;
     numStates: number;
     colorScheme: string;
+    initializationMode: InitializationMode;
     ruleSet: RuleSet;
     edgeMode: EdgeMode;
     currentRuleNumber: number;
@@ -47,6 +48,7 @@ interface CelluarContextProps {
     // Setters
     setLogicalWidth: (v: number) => void;
     setScrollSpeed: (v: number) => void;
+    setInitializationMode: (mode: InitializationMode) => void;
     setRuleLengthAndReset: (length: number) => void;
     setNumStatesAndReset: (count: number) => void;
     setCurrentState: (state: string[]) => void;
@@ -64,10 +66,11 @@ export const CelluarContextProvider = ({ children }: { children: ReactNode }) =>
     const [ruleLength, setRuleLength] = useState(3);
     const [numStates, setNumStates] = useState(2); // default binary
     const [colorScheme, setColorScheme] = useState('default');
+    const [initializationMode, setInitializationMode] = useState<InitializationMode>(InitializationMode.CENTER);
     const [ruleSet, setRuleSet] = useState<RuleSet>({});
     const [edgeMode, setEdgeMode] = useState(EdgeMode.STATIC);
     const [currentRuleNumber, setCurrentRuleNumber] = useState(90);
-    const [colorPalette, setColorPalette] = useState<string[]>(themes.Default); // default palette
+    const [colorPalette, setColorPalette] = useState<string[]>(themes.Basic); // default palette
     const [logicalWidth, setLogicalWidth] = useState<number>(300);
 
 
@@ -130,11 +133,11 @@ export const CelluarContextProvider = ({ children }: { children: ReactNode }) =>
         });
     }
 
-    function initializeState(mode: InitializationMode) {
+    function initializeState() {
         const width = logicalWidth;
         const newState = Array(width).fill('0');
 
-        switch (mode) {
+        switch (initializationMode) {
             case InitializationMode.CENTER:
                 newState[Math.floor(width / 2)] = '1';
                 break;
@@ -164,9 +167,9 @@ export const CelluarContextProvider = ({ children }: { children: ReactNode }) =>
     }
 
 
-    function setup(rule: number, mode: InitializationMode) {
+    function setup(rule: number) {
         selectRule(rule);
-        initializeState(mode);
+        initializeState();
     }
 
     function nextStep() {
@@ -207,9 +210,6 @@ export const CelluarContextProvider = ({ children }: { children: ReactNode }) =>
         setCurrentRuleNumber(0);
     }
 
-
-
-
     function applyTheme(themeName: ThemeName) {
         const theme = themes[themeName];
         if (theme) {
@@ -223,6 +223,7 @@ export const CelluarContextProvider = ({ children }: { children: ReactNode }) =>
         currentState,
         ruleLength,
         colorScheme,
+        initializationMode,
         ruleSet,
         edgeMode,
         currentRuleNumber,
@@ -240,6 +241,7 @@ export const CelluarContextProvider = ({ children }: { children: ReactNode }) =>
 
         setLogicalWidth,
         setScrollSpeed,
+        setInitializationMode,
         setRuleLengthAndReset,
         setNumStatesAndReset,
         setCurrentState,
@@ -247,6 +249,12 @@ export const CelluarContextProvider = ({ children }: { children: ReactNode }) =>
         setColorScheme,
         setColorPalette,
     };
+
+    useEffect(() => {
+        initializeState();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [logicalWidth]);
+
 
     return <CelluarContext.Provider value={value}>{children}</CelluarContext.Provider>;
 };
