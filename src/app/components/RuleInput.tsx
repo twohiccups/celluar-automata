@@ -100,7 +100,7 @@ export default function RuleInput() {
                 onClick={handleRandom}
                 className="w-full py-2 px-4 bg-purple-600 text-white rounded text-lg font-semibold hover:bg-purple-700 transition"
             >
-                Random
+                Random Rule
             </button>
         </section>
 

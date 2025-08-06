@@ -23,6 +23,8 @@ export enum InitializationMode {
     RANDOM,
 }
 
+
+
 interface CelluarContextProps {
     logicalWidth: number;
     scrollSpeed: number;

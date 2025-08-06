@@ -4,7 +4,7 @@ export type ThemeName =
     | 'Basic'
     | 'Matrix'
     | 'Monochrome'
-    | 'German'
+    | 'Germany'
     | 'Pastel'
     | 'Fire'
     | 'Autumn';
@@ -37,7 +37,7 @@ export const themes: Record<ThemeName, ColorTheme> = {
         '#000000',
         '#000000',
     ],
-    German: [
+    Germany: [
         '#000000',
         '#dd0000',
         '#ffce00',
