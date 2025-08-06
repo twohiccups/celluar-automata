@@ -1,6 +1,7 @@
 'use client';
 
-import { useCelluarContext } from '@/app/CelluarContext';
+import { useCelluarContext } from '@/app/components/contexts/CelluarContext';
+import { useRulesContext } from './contexts/RulesContext';
 
 function getTextContrast(hex: string): 'black' | 'white' {
     // Utility to determine readable text color
@@ -12,7 +13,8 @@ function getTextContrast(hex: string): 'black' | 'white' {
 }
 
 export default function RuleEditor() {
-    const { ruleSet, updateRule, numStates, colorPalette } = useCelluarContext();
+    const { colorPalette } = useCelluarContext();
+    const { ruleSet, numStates, updateRule } = useRulesContext()
 
     const sortedKeys = Object.keys(ruleSet).sort(
         (a, b) => parseInt(b, numStates) - parseInt(a, numStates)

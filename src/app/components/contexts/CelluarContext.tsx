@@ -3,11 +3,9 @@
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 
 import { themes, ThemeName } from '@/app/themes';
+import { useRulesContext } from './RulesContext';
 
 
-interface RuleSet {
-    [key: string]: string;
-}
 
 export enum EdgeMode {
     STATIC,
@@ -29,30 +27,20 @@ interface CelluarContextProps {
     logicalWidth: number;
     scrollSpeed: number;
     currentState: string[];
-    ruleLength: number;
-    numStates: number;
     colorScheme: string;
     initializationMode: InitializationMode;
-    ruleSet: RuleSet;
     edgeMode: EdgeMode;
-    currentRuleNumber: number;
     colorPalette: string[];
     applyTheme: (themeName: ThemeName) => void;
 
     // Functions
-    generateRuleSet: () => void;
-    selectRule: (ruleNumber: number) => void;
-    updateRule: (key: string, newValue?: string) => void;
     initializeState: () => void;
     nextStep: () => void;
-    setup: (rule: number, mode: InitializationMode) => void;
 
     // Setters
     setLogicalWidth: (v: number) => void;
     setScrollSpeed: (v: number) => void;
     setInitializationMode: (mode: InitializationMode) => void;
-    setRuleLengthAndReset: (length: number) => void;
-    setNumStatesAndReset: (count: number) => void;
     setCurrentState: (state: string[]) => void;
     setEdgeMode: (mode: EdgeMode) => void;
     setColorScheme: (scheme: string) => void;
@@ -65,75 +53,15 @@ export const CelluarContext = createContext<CelluarContextProps | undefined>(und
 export const CelluarContextProvider = ({ children }: { children: ReactNode }) => {
     const [currentState, setCurrentState] = useState<string[]>([]);
     const [scrollSpeed, setScrollSpeed] = useState<number>(40)
-    const [ruleLength, setRuleLength] = useState(3);
-    const [numStates, setNumStates] = useState(2); // default binary
     const [colorScheme, setColorScheme] = useState('default');
     const [initializationMode, setInitializationMode] = useState<InitializationMode>(InitializationMode.CENTER);
-    const [ruleSet, setRuleSet] = useState<RuleSet>({});
     const [edgeMode, setEdgeMode] = useState(EdgeMode.STATIC);
-    const [currentRuleNumber, setCurrentRuleNumber] = useState(90);
     const [colorPalette, setColorPalette] = useState<string[]>(themes.Basic); // default palette
     const [logicalWidth, setLogicalWidth] = useState<number>(300);
 
+    const { ruleLength, ruleSet } = useRulesContext()
 
-    function generateRuleSet() {
-        const totalRules = numStates ** ruleLength;
-        const newRuleSet: RuleSet = {};
 
-        for (let i = 0; i < totalRules; i++) {
-            const key = i.toString(numStates).padStart(ruleLength, '0');
-            newRuleSet[key] = '0';
-        }
-
-        setRuleSet(newRuleSet);
-        setCurrentRuleNumber(0);
-    }
-
-    function selectRule(ruleNumber: number) {
-        const totalRules = numStates ** ruleLength;
-
-        const keys: string[] = [];
-        for (let i = 0; i < totalRules; i++) {
-            keys.push(i.toString(numStates).padStart(ruleLength, '0'));
-        }
-
-        keys.reverse(); // high-order patterns first
-
-        const ruleString = ruleNumber.toString(numStates).padStart(totalRules, '0');
-
-        const newRules: RuleSet = {};
-        for (let i = 0; i < totalRules; i++) {
-            newRules[keys[i]] = ruleString[i] ?? '0';
-        }
-
-        setRuleSet(newRules);
-        setCurrentRuleNumber(ruleNumber);
-    }
-
-    function updateRule(key: string, newValue?: string) {
-        setRuleSet((prev) => {
-            const current = prev[key];
-            if (current === undefined) return prev;
-
-            const updatedValue =
-                newValue !== undefined
-                    ? newValue
-                    : ((parseInt(current) + 1) % numStates).toString();
-
-            const newRules = {
-                ...prev,
-                [key]: updatedValue,
-            };
-
-            // Recompute rule number
-            const keys = Object.keys(newRules).sort().reverse();
-            const digits = keys.map((k) => newRules[k] ?? '0').join('');
-            const newRuleNum = parseInt(digits, numStates);
-            setCurrentRuleNumber(newRuleNum);
-
-            return newRules;
-        });
-    }
 
     function initializeState() {
         const width = logicalWidth;
@@ -169,11 +97,6 @@ export const CelluarContextProvider = ({ children }: { children: ReactNode }) =>
     }
 
 
-    function setup(rule: number) {
-        selectRule(rule);
-        initializeState();
-    }
-
     function nextStep() {
         const len = currentState.length;
         const newState: string[] = [];
@@ -200,18 +123,6 @@ export const CelluarContextProvider = ({ children }: { children: ReactNode }) =>
     }
 
 
-    function setRuleLengthAndReset(length: number) {
-        setRuleLength(length);
-        generateRuleSet();
-        setCurrentRuleNumber(0);
-    }
-
-    function setNumStatesAndReset(count: number) {
-        setNumStates(count);
-        generateRuleSet();
-        setCurrentRuleNumber(0);
-    }
-
     function applyTheme(themeName: ThemeName) {
         const theme = themes[themeName];
         if (theme) {
@@ -223,29 +134,16 @@ export const CelluarContextProvider = ({ children }: { children: ReactNode }) =>
         logicalWidth,
         scrollSpeed,
         currentState,
-        ruleLength,
         colorScheme,
         initializationMode,
-        ruleSet,
         edgeMode,
-        currentRuleNumber,
-        numStates,
         colorPalette,
-
-
-        generateRuleSet,
-        selectRule,
         nextStep,
-        updateRule,
         initializeState,
-        setup,
         applyTheme,
-
         setLogicalWidth,
         setScrollSpeed,
         setInitializationMode,
-        setRuleLengthAndReset,
-        setNumStatesAndReset,
         setCurrentState,
         setEdgeMode,
         setColorScheme,

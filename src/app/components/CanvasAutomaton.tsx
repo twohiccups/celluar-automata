@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { useCelluarContext } from '@/app/CelluarContext';
+import { useCelluarContext } from '@/app/components/contexts/CelluarContext';
 
 export default function CanvasAutomaton() {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);

@@ -4,12 +4,13 @@ import {
     InitializationMode,
     EdgeMode,
     useCelluarContext,
-} from '@/app/CelluarContext';
+} from '@/app/components/contexts/CelluarContext';
 
 import RuleEditor from '@/app/components/RuleEditor';
 
 import RuleInput from './RuleInput';
 import { ColorThemeSelector } from './ColorThemeSelector';
+import { useRulesContext } from './contexts/RulesContext';
 
 
 
@@ -66,11 +67,15 @@ function EdgeModeSelector() {
 function RuleConfigSelectors() {
 
     const {
-        ruleLength,
-        numStates,
-        setRuleLengthAndReset,
-        setNumStatesAndReset
     } = useCelluarContext()
+
+    const {
+        numStates,
+        setNumStatesAndReset,
+        ruleLength,
+        setRuleLengthAndReset,
+
+    } = useRulesContext()
     return (
         <>
             <div className="mt-4 flex items-center gap-2">

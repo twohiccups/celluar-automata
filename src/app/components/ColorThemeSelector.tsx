@@ -1,6 +1,6 @@
 
 import { ThemeName, themeNames } from '@/app/themes';
-import { useCelluarContext } from '../CelluarContext';
+import { useCelluarContext } from './contexts/CelluarContext';
 import { useState } from 'react';
 
 
