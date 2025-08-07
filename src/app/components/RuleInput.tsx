@@ -31,17 +31,10 @@ export default function RuleInput() {
 
     // 👇 Automatically apply rule + re-initialize when inputValue is a valid number
     useEffect(() => {
-        try {
-            // Parse as BigInt always
-            const parsed = BigInt(inputValue);
-
-            // Clamp to maxAssignable
-            if (parsed <= maxAssignable) {
-                selectRule(parsed);  // This can now take a BigInt safely
-                initializeState();
-            }
-        } catch (err) {
-            // Ignore invalid input
+        const parsed = parseInt(inputValue, 10);
+        if (!isNaN(parsed)) {
+            selectRule(parsed);
+            initializeState();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [inputValue]);
