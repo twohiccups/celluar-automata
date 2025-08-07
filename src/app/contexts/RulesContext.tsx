@@ -9,17 +9,17 @@ export interface RuleSet {
 interface RulesContextProps {
     ruleLength: number;
     ruleSet: RuleSet;
-    currentRuleNumber: number;
+    currentRuleNumber: string; // changed to string
     numStates: number;
 
     // Core logic
-    selectRule: (ruleNumber: number) => void;
+    selectRule: (ruleNumber: string) => void;
     updateRule: (key: string, newValue?: string) => void;
 
     // Setters
     setNumStates: (numStates: number) => void;
     setRuleSet: (ruleSet: RuleSet) => void;
-    setCurrentRuleNumber: (ruleNumber: number) => void;
+    setCurrentRuleNumber: (ruleNumber: string) => void;
     setRuleLength: (length: number) => void;
 
     // Helpers
@@ -32,11 +32,10 @@ const RulesContext = createContext<RulesContextProps | undefined>(undefined);
 
 export const RulesProvider = ({ children }: { children: React.ReactNode }) => {
     const [ruleSet, setRuleSet] = useState<RuleSet>({});
-    const [currentRuleNumber, setCurrentRuleNumber] = useState(90);
-    const [ruleLength, setRuleLength] = useState(3);
-    const [numStates, setNumStates] = useState(2);
+    const [currentRuleNumber, setCurrentRuleNumber] = useState<string>('90');
+    const [ruleLength, setRuleLength] = useState<number>(3);
+    const [numStates, setNumStates] = useState<number>(2);
 
-    // Always generate rule set based on latest inputs
     function generateRuleSet(customLength = ruleLength, customStates = numStates) {
         const totalRules = customStates ** customLength;
         const newRuleSet: RuleSet = {};
@@ -47,28 +46,28 @@ export const RulesProvider = ({ children }: { children: React.ReactNode }) => {
         }
 
         setRuleSet(newRuleSet);
-        setCurrentRuleNumber(0);
+        setCurrentRuleNumber('0');
     }
 
-    function selectRule(ruleNumber: number) {
-        const totalRules = numStates ** ruleLength;
-        const keys: string[] = [];
+    function selectRule(ruleStr: string) {
+        const totalKeys = numStates ** ruleLength;
 
-        for (let i = 0; i < totalRules; i++) {
+        const keys: string[] = [];
+        for (let i = 0; i < totalKeys; i++) {
             keys.push(i.toString(numStates).padStart(ruleLength, '0'));
         }
 
         keys.reverse();
 
-        const ruleString = ruleNumber.toString(numStates).padStart(totalRules, '0');
+        const baseN = BigInt(ruleStr).toString(numStates).padStart(keys.length, '0');
 
         const newRules: RuleSet = {};
-        for (let i = 0; i < totalRules; i++) {
-            newRules[keys[i]] = ruleString[i] ?? '0';
+        for (let i = 0; i < keys.length; i++) {
+            newRules[keys[i]] = baseN[i] ?? '0';
         }
 
         setRuleSet(newRules);
-        setCurrentRuleNumber(ruleNumber);
+        setCurrentRuleNumber(ruleStr);
     }
 
     function updateRule(key: string, newValue?: string) {
@@ -86,11 +85,15 @@ export const RulesProvider = ({ children }: { children: React.ReactNode }) => {
                 [key]: updatedValue,
             };
 
-            // Recalculate rule number
+            // Recalculate rule number (safe up to a limit)
             const keys = Object.keys(newRules).sort().reverse();
             const digits = keys.map((k) => newRules[k] ?? '0').join('');
-            const newRuleNum = parseInt(digits, numStates);
-            setCurrentRuleNumber(newRuleNum);
+            try {
+                const newRuleNum = BigInt(`0b${parseInt(digits, numStates).toString(2)}`);
+                setCurrentRuleNumber(newRuleNum.toString());
+            } catch {
+                setCurrentRuleNumber('0'); // fallback
+            }
 
             return newRules;
         });
@@ -98,12 +101,12 @@ export const RulesProvider = ({ children }: { children: React.ReactNode }) => {
 
     function setRuleLengthAndReset(length: number) {
         setRuleLength(length);
-        generateRuleSet(length, numStates); // use new length with current numStates
+        generateRuleSet(length, numStates);
     }
 
     function setNumStatesAndReset(count: number) {
         setNumStates(count);
-        generateRuleSet(ruleLength, count); // use current ruleLength with new numStates
+        generateRuleSet(ruleLength, count);
     }
 
     return (

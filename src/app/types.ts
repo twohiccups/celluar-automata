@@ -20,7 +20,7 @@ export enum InitializationMode {
 
 export interface AppSnapshot {
     ruleLength: number;
-    currentRuleNumber: number;
+    currentRuleNumber: string;
     numStates: number;
 
     logicalWidth: number;

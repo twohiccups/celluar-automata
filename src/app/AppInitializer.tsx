@@ -11,43 +11,42 @@ export function AppInitializer() {
 
     const [hasInitialized, setHasInitialized] = useState(false);
     const [hasAppliedUrlConfig, setHasAppliedUrlConfig] = useState(false);
+    const [pendingRuleNumber, setPendingRuleNumber] = useState<string | null>(null);
 
-    // Phase 1: Apply config if present
     useEffect(() => {
         if (hasInitialized || hasAppliedUrlConfig) return;
 
         const config = decodeConfigFromUrl();
 
         if (config) {
-            // Apply rule config
+            cell.setLogicalWidth(config.logicalWidth);
             rules.setRuleLength(config.ruleLength);
             rules.setNumStates(config.numStates);
-            rules.selectRule(config.currentRuleNumber);
-
-            // Apply cellular config
-            cell.setLogicalWidth(config.logicalWidth);
+            setPendingRuleNumber(config.currentRuleNumber); // wait to apply
             cell.setScrollSpeed(config.scrollSpeed);
             cell.setInitializationMode(config.initializationMode);
             cell.setEdgeMode(config.edgeMode);
             cell.setColorPalette(config.colorPalette);
-
-            setHasAppliedUrlConfig(true);
-
-            // Clean the URL
-            const cleanUrl = window.location.origin + window.location.pathname;
-            window.history.replaceState({}, '', cleanUrl);
-        } else {
-            // No config found — just proceed to init
-            setHasAppliedUrlConfig(true);
         }
+
+        setHasAppliedUrlConfig(true);
     }, [hasInitialized, hasAppliedUrlConfig, rules, cell]);
 
-    // Phase 2: Run initializeState after config (or default)
+    useEffect(() => {
+        if (pendingRuleNumber !== null) {
+            rules.selectRule(pendingRuleNumber);
+            setPendingRuleNumber(null);
+        }
+    }, [pendingRuleNumber, rules.ruleLength, rules.numStates]); // track actual values
+
     useEffect(() => {
         if (!hasAppliedUrlConfig || hasInitialized) return;
 
         cell.initializeState();
         setHasInitialized(true);
+
+        const cleanUrl = window.location.origin + window.location.pathname;
+        window.history.replaceState({}, '', cleanUrl);
     }, [hasAppliedUrlConfig, hasInitialized, cell]);
 
     return null;

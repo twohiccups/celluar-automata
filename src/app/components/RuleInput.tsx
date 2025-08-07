@@ -29,15 +29,13 @@ export default function RuleInput() {
         setInputValue(e.target.value);
     };
 
-    // 👇 Automatically apply rule + re-initialize when inputValue is a valid number
     useEffect(() => {
-        const parsed = parseInt(inputValue, 10);
-        if (!isNaN(parsed)) {
-            selectRule(parsed);
+        if (/^\d+$/.test(inputValue)) {
+            selectRule(inputValue);
             initializeState();
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [inputValue]);
+
 
 
     const totalAssignments = BigInt(numStates) ** BigInt(numStates ** ruleLength);
@@ -47,43 +45,51 @@ export default function RuleInput() {
             : totalAssignments - BigInt(1);
 
     const handleRandom = () => {
-        if (typeof maxAssignable === 'number') {
-            const random = Math.floor(Math.random() * (maxAssignable + 1));
-            setInputValue(random.toString());
-        } else if (typeof maxAssignable === 'bigint') {
-            // Generate a random bigint with the same number of digits as the max
-            const digits = maxAssignable.toString().length;
+        const max = BigInt(numStates) ** (BigInt(numStates) ** BigInt(ruleLength));
 
-            let randomStr = '';
-            for (let i = 0; i < digits; i++) {
-                randomStr += Math.floor(Math.random() * 10); // random digit 0–9
+        // Generate a random bigint within [0, max)
+        const maxDigits = max.toString().length;
+
+        let randomBigInt = BigInt(0);
+        while (randomBigInt >= max || randomBigInt === BigInt(0)) {
+            let str = '';
+            for (let i = 0; i < maxDigits; i++) {
+                str += Math.floor(Math.random() * 10);
             }
-
-            // Trim leading zeros and cap if it goes over maxAssignable
-            let randomBig = BigInt(randomStr.replace(/^0+/, '') || '0');
-            if (randomBig > maxAssignable) {
-                randomBig = maxAssignable - (randomBig % maxAssignable); // pull it back within range
-            }
-
-            setInputValue(randomBig.toString());
+            str = str.replace(/^0+/, '') || '0';
+            randomBigInt = BigInt(str);
         }
+
+        setInputValue(randomBigInt.toString());
     };
+
 
 
     const handleStart = () => {
         initializeState(); // Re-start current rule from initial state
     };
 
-    function formatMaxAssignable(max: number | bigint | undefined): string {
-        if (max === undefined) return '';
-        if (typeof max === 'number') {
-            return max > 7625597484986 ? max.toExponential(3) : max.toLocaleString();
+    function formatMaxAssignable(): string {
+        try {
+            const total = BigInt(numStates) ** (BigInt(numStates) ** BigInt(ruleLength));
+
+            // If total is small enough, show full number with commas
+            if (total < 1_000_000_000_000_000n) {
+                return total.toLocaleString();
+            }
+
+            // Otherwise, format in scientific notation
+            const str = total.toString();
+            const base = `${str[0]}.${str.slice(1, 4)}`;
+            const exponent = str.length - 1;
+            return `${base}e+${exponent}`;
+        } catch {
+            return 'Too large';
         }
-        const str = max.toString();
-        const base = `${str[0]}.${str.slice(1, 4)}`;
-        const exponent = str.length - 1;
-        return `${base}e+${exponent}`;
     }
+
+
+
 
     return (
         <section className="mt-6">
@@ -102,7 +108,7 @@ export default function RuleInput() {
                 <p className="text-xs text-gray-600 mb-3">
                     Max rule number:&nbsp;
                     <span className="font-mono break-all">
-                        {formatMaxAssignable(maxAssignable)}
+                        {formatMaxAssignable()}
                     </span>
                 </p>
             )}
