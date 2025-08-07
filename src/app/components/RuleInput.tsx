@@ -52,6 +52,10 @@ export default function RuleInput() {
         }
     };
 
+    const handleStart = () => {
+        initializeState(); // Re-start current rule from initial state
+    };
+
     function formatMaxAssignable(max: number | bigint | undefined): string {
         if (max === undefined) return '';
         if (typeof max === 'number') {
@@ -91,6 +95,16 @@ export default function RuleInput() {
             >
                 Random Rule
             </button>
+
+
+            <button
+                onClick={handleStart}
+                className="w-full mt-2 mb-2 py-2 px-4 bg-blue-600 text-white rounded text-lg font-semibold hover:bg-blue-700 transition"
+            >
+                Initialize
+            </button>
+
+
         </section>
     );
 }
