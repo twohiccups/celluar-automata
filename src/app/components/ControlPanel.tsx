@@ -12,6 +12,8 @@ import RuleInput from './RuleInput';
 import { ColorThemeSelector } from './ColorThemeSelector';
 import { ExportConfigButton } from './ExportConfigButton';
 import RuleConfigSelectors from './RuleConfigSelectors';
+import SectionTitle from './SectionTitle';
+import { tooltips } from '../tooltips';
 
 
 
@@ -20,7 +22,7 @@ function InitializationSelector() {
 
     return (
         <section>
-            <h3 className="text-lg font-semibold mb-2">Initialization Mode</h3>
+            <SectionTitle title={'Initialization Mode'} tooltip={tooltips.initializationMode} />
             <div className="flex flex-wrap gap-2">
                 {Object.entries(InitializationMode)
                     .filter(([key]) => isNaN(Number(key)))
@@ -46,7 +48,7 @@ function EdgeModeSelector() {
     const { edgeMode, setEdgeMode } = useCelluarContext()
     return (
         <section className="mt-4">
-            <h3 className="text-lg font-semibold mb-2">Edge Mode</h3>
+            <SectionTitle title={'Edge Mode'} tooltip={tooltips.edgeMode} />
             <div className="flex flex-wrap gap-2">
                 {Object.entries(EdgeMode)
                     .filter(([key]) => isNaN(Number(key)))
@@ -82,7 +84,7 @@ function LogicalWidthSelector() {
 
     return (
         <section className="mt-6">
-            <h3 className="text-lg font-semibold mb-2">Logical Width</h3>
+            <SectionTitle title={'Logical Width'} tooltip={tooltips.logicalWidth} />
             <input
                 type="range"
                 min={100}

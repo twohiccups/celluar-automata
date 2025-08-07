@@ -3,6 +3,7 @@
 import { useCelluarContext } from '@/app/contexts/CelluarContext';
 import { useRulesContext } from '../contexts/RulesContext';
 import SectionTitle from './SectionTitle';
+import { tooltips } from '../tooltips';
 
 function getTextContrast(hex: string): 'black' | 'white' {
     // Utility to determine readable text color
@@ -20,11 +21,11 @@ export default function RuleEditor() {
     const sortedKeys = Object.keys(ruleSet).sort(
         (a, b) => parseInt(b, numStates) - parseInt(a, numStates)
     );
-    const tooltip = ""
+
 
     return (
         <div className="mt-6">
-            <SectionTitle title={'Rule Set'} tooltip={tooltip} />
+            <SectionTitle title={'Rule Set'} tooltip={tooltips.ruleSet} />
             <div className="h-48 overflow-y-auto border rounded p-2 bg-gray-100 shadow-sm">
                 <div className="flex flex-col gap-2 text-sm">
                     {sortedKeys.map((key) => {

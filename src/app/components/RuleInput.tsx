@@ -4,10 +4,9 @@ import { useEffect, useState } from "react";
 import { useCelluarContext } from "../contexts/CelluarContext";
 import { useRulesContext } from "../contexts/RulesContext";
 import SectionTitle from "./SectionTitle";
+import { tooltips } from "../tooltips";
 
 export default function RuleInput() {
-
-    const ruleNumTooltip = ''
 
     const { initializeState } = useCelluarContext();
     const {
@@ -93,7 +92,7 @@ export default function RuleInput() {
 
     return (
         <section className="mt-6">
-            <SectionTitle title={'Rule Number'} tooltip={ruleNumTooltip} />
+            <SectionTitle title={'Rule Number'} tooltip={tooltips.ruleNumber} />
 
             <input
                 type="number"

@@ -3,6 +3,8 @@
 import { ThemeName, themeNames } from '@/app/themes';
 import { useCelluarContext } from '../contexts/CelluarContext';
 import { useState } from 'react';
+import SectionTitle from './SectionTitle';
+import { tooltips } from '../tooltips';
 
 export function ColorThemeSelector() {
     const {
@@ -48,7 +50,7 @@ export function ColorThemeSelector() {
 
     return (
         <section className="mt-6">
-            <h3 className="text-lg font-semibold mb-2">Color Theme</h3>
+            <SectionTitle title={'Color Theme'} tooltip={tooltips.colorTheme} />
 
             {/* Theme dropdown */}
             <div className="flex items-center gap-2 mb-4">

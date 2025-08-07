@@ -1,9 +1,9 @@
 import { useRulesContext } from "../contexts/RulesContext";
+import { tooltips } from "../tooltips";
 import SectionTitle from "./SectionTitle";
 
 export default function RuleConfigSelectors() {
 
-    const numStatesTooltip = ""
 
     const {
         numStates,
@@ -18,7 +18,7 @@ export default function RuleConfigSelectors() {
     return (
         <>
             <section className="mt-6">
-                <h3 className="text-lg font-semibold mb-2">Rule Length</h3>
+                <SectionTitle title={'Rule Length'} tooltip={tooltips.ruleLength} />
                 <div className="flex flex-wrap gap-2">
                     {ruleLengths.map((len) => (
                         <button
@@ -33,10 +33,10 @@ export default function RuleConfigSelectors() {
                         </button>
                     ))}
                 </div>
-            </section>
+            </section >
 
             <section className="mt-6">
-                <SectionTitle title={'Number of States'} tooltip={numStatesTooltip} />
+                <SectionTitle title={'Number of States'} tooltip={tooltips.numStates} />
                 <div className="flex flex-wrap gap-2">
                     {numStatesOptions.map((n) => (
                         <button
