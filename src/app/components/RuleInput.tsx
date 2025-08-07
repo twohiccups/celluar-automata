@@ -3,8 +3,12 @@
 import { useEffect, useState } from "react";
 import { useCelluarContext } from "../contexts/CelluarContext";
 import { useRulesContext } from "../contexts/RulesContext";
+import SectionTitle from "./SectionTitle";
 
 export default function RuleInput() {
+
+    const ruleNumTooltip = ''
+
     const { initializeState } = useCelluarContext();
     const {
         currentRuleNumber,
@@ -27,10 +31,17 @@ export default function RuleInput() {
 
     // 👇 Automatically apply rule + re-initialize when inputValue is a valid number
     useEffect(() => {
-        const parsed = parseInt(inputValue, 10);
-        if (!isNaN(parsed)) {
-            selectRule(parsed);
-            initializeState();
+        try {
+            // Parse as BigInt always
+            const parsed = BigInt(inputValue);
+
+            // Clamp to maxAssignable
+            if (parsed <= maxAssignable) {
+                selectRule(parsed);  // This can now take a BigInt safely
+                initializeState();
+            }
+        } catch (err) {
+            // Ignore invalid input
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [inputValue]);
@@ -47,10 +58,24 @@ export default function RuleInput() {
             const random = Math.floor(Math.random() * (maxAssignable + 1));
             setInputValue(random.toString());
         } else if (typeof maxAssignable === 'bigint') {
-            const randomBig = BigInt.asUintN(64, crypto.getRandomValues(new BigUint64Array(1))[0]) % totalAssignments;
+            // Generate a random bigint with the same number of digits as the max
+            const digits = maxAssignable.toString().length;
+
+            let randomStr = '';
+            for (let i = 0; i < digits; i++) {
+                randomStr += Math.floor(Math.random() * 10); // random digit 0–9
+            }
+
+            // Trim leading zeros and cap if it goes over maxAssignable
+            let randomBig = BigInt(randomStr.replace(/^0+/, '') || '0');
+            if (randomBig > maxAssignable) {
+                randomBig = maxAssignable - (randomBig % maxAssignable); // pull it back within range
+            }
+
             setInputValue(randomBig.toString());
         }
     };
+
 
     const handleStart = () => {
         initializeState(); // Re-start current rule from initial state
@@ -69,7 +94,7 @@ export default function RuleInput() {
 
     return (
         <section className="mt-6">
-            <h3 className="text-lg font-semibold mb-2">Rule Number</h3>
+            <SectionTitle title={'Rule Number'} tooltip={ruleNumTooltip} />
 
             <input
                 type="number"

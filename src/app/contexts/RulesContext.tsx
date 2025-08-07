@@ -11,15 +11,21 @@ interface RulesContextProps {
     ruleSet: RuleSet;
     currentRuleNumber: number;
     numStates: number;
+
+    // Core logic
     selectRule: (ruleNumber: number) => void;
     updateRule: (key: string, newValue?: string) => void;
-    generateRuleSet: () => void;
+
+    // Setters
     setNumStates: (numStates: number) => void;
     setRuleSet: (ruleSet: RuleSet) => void;
     setCurrentRuleNumber: (ruleNumber: number) => void;
     setRuleLength: (length: number) => void;
+
+    // Helpers
     setRuleLengthAndReset: (length: number) => void;
     setNumStatesAndReset: (count: number) => void;
+    generateRuleSet: (length?: number, states?: number) => void;
 }
 
 const RulesContext = createContext<RulesContextProps | undefined>(undefined);
@@ -30,12 +36,13 @@ export const RulesProvider = ({ children }: { children: React.ReactNode }) => {
     const [ruleLength, setRuleLength] = useState(3);
     const [numStates, setNumStates] = useState(2);
 
-    function generateRuleSet() {
-        const totalRules = numStates ** ruleLength;
+    // Always generate rule set based on latest inputs
+    function generateRuleSet(customLength = ruleLength, customStates = numStates) {
+        const totalRules = customStates ** customLength;
         const newRuleSet: RuleSet = {};
 
         for (let i = 0; i < totalRules; i++) {
-            const key = i.toString(numStates).padStart(ruleLength, '0');
+            const key = i.toString(customStates).padStart(customLength, '0');
             newRuleSet[key] = '0';
         }
 
@@ -79,6 +86,7 @@ export const RulesProvider = ({ children }: { children: React.ReactNode }) => {
                 [key]: updatedValue,
             };
 
+            // Recalculate rule number
             const keys = Object.keys(newRules).sort().reverse();
             const digits = keys.map((k) => newRules[k] ?? '0').join('');
             const newRuleNum = parseInt(digits, numStates);
@@ -90,12 +98,12 @@ export const RulesProvider = ({ children }: { children: React.ReactNode }) => {
 
     function setRuleLengthAndReset(length: number) {
         setRuleLength(length);
-        generateRuleSet();
+        generateRuleSet(length, numStates); // use new length with current numStates
     }
 
     function setNumStatesAndReset(count: number) {
         setNumStates(count);
-        generateRuleSet();
+        generateRuleSet(ruleLength, count); // use current ruleLength with new numStates
     }
 
     return (
@@ -110,8 +118,8 @@ export const RulesProvider = ({ children }: { children: React.ReactNode }) => {
                 generateRuleSet,
                 setNumStates,
                 setRuleSet,
-                setRuleLength,
                 setCurrentRuleNumber,
+                setRuleLength,
                 setRuleLengthAndReset,
                 setNumStatesAndReset,
             }}
@@ -124,7 +132,7 @@ export const RulesProvider = ({ children }: { children: React.ReactNode }) => {
 export const useRulesContext = () => {
     const context = useContext(RulesContext);
     if (!context) {
-        throw new Error("useRulesContext must be used within a RulesProvider");
+        throw new Error('useRulesContext must be used within a RulesProvider');
     }
     return context;
 };

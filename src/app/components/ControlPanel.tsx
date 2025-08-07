@@ -10,8 +10,8 @@ import RuleEditor from '@/app/components/RuleEditor';
 
 import RuleInput from './RuleInput';
 import { ColorThemeSelector } from './ColorThemeSelector';
-import { useRulesContext } from '../contexts/RulesContext';
 import { ExportConfigButton } from './ExportConfigButton';
+import RuleConfigSelectors from './RuleConfigSelectors';
 
 
 
@@ -65,52 +65,6 @@ function EdgeModeSelector() {
     );
 }
 
-function RuleConfigSelectors() {
-
-    const {
-    } = useCelluarContext()
-
-    const {
-        numStates,
-        setNumStatesAndReset,
-        ruleLength,
-        setRuleLengthAndReset,
-
-    } = useRulesContext()
-    return (
-        <>
-            <div className="mt-4 flex items-center gap-2">
-                <label className="font-medium">Rule Length:</label>
-                <select
-                    className="border rounded px-2 py-1"
-                    value={ruleLength}
-                    onChange={(e) => setRuleLengthAndReset(Number(e.target.value))}
-                >
-                    {[2, 3, 4, 5].map((len) => (
-                        <option key={len} value={len}>
-                            {len}
-                        </option>
-                    ))}
-                </select>
-            </div>
-
-            <div className="mt-4 flex items-center gap-2">
-                <label className="font-medium">Number of States:</label>
-                <select
-                    className="border rounded px-2 py-1"
-                    value={numStates}
-                    onChange={(e) => setNumStatesAndReset(Number(e.target.value))}
-                >
-                    {[2, 3, 4, 5].map((n) => (
-                        <option key={n} value={n}>
-                            {n}
-                        </option>
-                    ))}
-                </select>
-            </div>
-        </>
-    );
-}
 
 
 function LogicalWidthSelector() {
@@ -183,8 +137,6 @@ function ScrollSpeedSelector() {
 
 
 export default function ControlPanel() {
-
-
 
     return (
         <div className="mb-6 p-4 bg-gray-50 rounded shadow">

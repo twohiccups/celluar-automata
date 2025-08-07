@@ -1,8 +1,8 @@
+'use client';
 
 import { ThemeName, themeNames } from '@/app/themes';
 import { useCelluarContext } from '../contexts/CelluarContext';
 import { useState } from 'react';
-
 
 export function ColorThemeSelector() {
     const {
@@ -12,6 +12,7 @@ export function ColorThemeSelector() {
     } = useCelluarContext();
 
     const [selectedTheme, setSelectedTheme] = useState<ThemeName>('Basic');
+    const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
     const handleThemeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const themeName = e.target.value as ThemeName;
@@ -23,6 +24,26 @@ export function ColorThemeSelector() {
         const updated = [...colorPalette];
         updated[index] = newColor;
         setColorPalette(updated);
+    };
+
+    const handleDragStart = (index: number) => {
+        setDraggedIndex(index);
+    };
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+    };
+
+    const handleDrop = (index: number) => {
+        if (draggedIndex === null || draggedIndex === index) return;
+
+        const updated = [...colorPalette];
+        const temp = updated[draggedIndex];
+        updated[draggedIndex] = updated[index];
+        updated[index] = temp;
+
+        setColorPalette(updated);
+        setDraggedIndex(null);
     };
 
     return (
@@ -45,10 +66,17 @@ export function ColorThemeSelector() {
                 </select>
             </div>
 
-            {/* Color pickers */}
+            {/* Color pickers with drag-and-drop */}
             <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
                 {colorPalette.map((color, index) => (
-                    <div key={index} className="flex flex-col items-center text-sm">
+                    <div
+                        key={index}
+                        className="flex flex-col items-center text-sm cursor-move"
+                        draggable
+                        onDragStart={() => handleDragStart(index)}
+                        onDragOver={handleDragOver}
+                        onDrop={() => handleDrop(index)}
+                    >
                         <input
                             type="color"
                             value={color}

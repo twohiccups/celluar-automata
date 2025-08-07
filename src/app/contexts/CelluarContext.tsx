@@ -4,7 +4,6 @@ import { createContext, ReactNode, useContext, useEffect, useState } from 'react
 
 import { themes, ThemeName } from '@/app/themes';
 import { useRulesContext } from './RulesContext';
-import { ColorThemeSelector } from '../components/ColorThemeSelector';
 
 
 

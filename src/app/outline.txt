@@ -11,8 +11,7 @@ Issues:
 
 TODO
 * Mobile layout
-* Share
-* Previous config.
-* Switch colors - draggable (oy oy oy ahahaha)
-* Tooltips
-* Change the input of Rule Number and Num States to circles?
+
+TODO 2
+Actual Tooltips
+INFO PAGE
