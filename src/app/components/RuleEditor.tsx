@@ -1,7 +1,7 @@
 'use client';
 
-import { useCelluarContext } from '@/app/components/contexts/CelluarContext';
-import { useRulesContext } from './contexts/RulesContext';
+import { useCelluarContext } from '@/app/contexts/CelluarContext';
+import { useRulesContext } from '../contexts/RulesContext';
 
 function getTextContrast(hex: string): 'black' | 'white' {
     // Utility to determine readable text color

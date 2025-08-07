@@ -19,7 +19,6 @@ export enum InitializationMode {
 
 
 export interface AppSnapshot {
-    ruleSet: RuleSet;
     ruleLength: number;
     currentRuleNumber: number;
     numStates: number;

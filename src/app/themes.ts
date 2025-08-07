@@ -9,6 +9,8 @@ export type ThemeName =
     | 'Fire'
     | 'Autumn';
 
+
+
 export type ColorTheme = string[]; // Can contain up to 9 colors
 
 export const themes: Record<ThemeName, ColorTheme> = {

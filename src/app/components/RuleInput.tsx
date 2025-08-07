@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { useCelluarContext } from "./contexts/CelluarContext";
-import { useRulesContext } from "./contexts/RulesContext";
+import { useCelluarContext } from "../contexts/CelluarContext";
+import { useRulesContext } from "../contexts/RulesContext";
 
 export default function RuleInput() {
     const { initializeState } = useCelluarContext();

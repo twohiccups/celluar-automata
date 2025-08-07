@@ -1,9 +1,10 @@
 'use client';
 
-import { RuleSet } from '@/app/types';
 import { createContext, useContext, useState } from 'react';
 
-
+export interface RuleSet {
+    [key: string]: string;
+}
 
 interface RulesContextProps {
     ruleLength: number;
@@ -24,14 +25,10 @@ interface RulesContextProps {
 const RulesContext = createContext<RulesContextProps | undefined>(undefined);
 
 export const RulesProvider = ({ children }: { children: React.ReactNode }) => {
-
-
     const [ruleSet, setRuleSet] = useState<RuleSet>({});
     const [currentRuleNumber, setCurrentRuleNumber] = useState(90);
     const [ruleLength, setRuleLength] = useState(3);
     const [numStates, setNumStates] = useState(2);
-
-
 
     function generateRuleSet() {
         const totalRules = numStates ** ruleLength;

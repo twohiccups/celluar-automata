@@ -4,8 +4,23 @@ import { createContext, ReactNode, useContext, useEffect, useState } from 'react
 
 import { themes, ThemeName } from '@/app/themes';
 import { useRulesContext } from './RulesContext';
-import { EdgeMode, InitializationMode } from '@/app/types';
+import { ColorThemeSelector } from '../components/ColorThemeSelector';
 
+
+
+export enum EdgeMode {
+    STATIC,
+    MODULAR,
+}
+
+export enum InitializationMode {
+    CENTER,
+    RIGHT,
+    LEFT,
+    FEW,
+    SPORADIC,
+    RANDOM,
+}
 
 
 
@@ -39,7 +54,7 @@ export const CelluarContext = createContext<CelluarContextProps | undefined>(und
 export const CelluarContextProvider = ({ children }: { children: ReactNode }) => {
     const [currentState, setCurrentState] = useState<string[]>([]);
     const [scrollSpeed, setScrollSpeed] = useState<number>(40)
-    const [colorScheme, setColorScheme] = useState('default');
+    const [colorScheme, setColorScheme] = useState("Basic");
     const [initializationMode, setInitializationMode] = useState<InitializationMode>(InitializationMode.CENTER);
     const [edgeMode, setEdgeMode] = useState(EdgeMode.STATIC);
     const [colorPalette, setColorPalette] = useState<string[]>(themes.Basic); // default palette
@@ -137,6 +152,7 @@ export const CelluarContextProvider = ({ children }: { children: ReactNode }) =>
     };
 
     useEffect(() => {
+        applyTheme('Basic');
         initializeState();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [logicalWidth]);

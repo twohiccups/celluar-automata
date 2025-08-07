@@ -4,13 +4,14 @@ import {
     InitializationMode,
     EdgeMode,
     useCelluarContext,
-} from '@/app/components/contexts/CelluarContext';
+} from '@/app/contexts/CelluarContext';
 
 import RuleEditor from '@/app/components/RuleEditor';
 
 import RuleInput from './RuleInput';
 import { ColorThemeSelector } from './ColorThemeSelector';
-import { useRulesContext } from './contexts/RulesContext';
+import { useRulesContext } from '../contexts/RulesContext';
+import { ExportConfigButton } from './ExportConfigButton';
 
 
 
@@ -188,6 +189,7 @@ export default function ControlPanel() {
     return (
         <div className="mb-6 p-4 bg-gray-50 rounded shadow">
             <RuleInput />
+            <ExportConfigButton />
             <RuleConfigSelectors />
             <RuleEditor />
             <InitializationSelector />
