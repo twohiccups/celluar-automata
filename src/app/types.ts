@@ -12,7 +12,7 @@ export enum InitializationMode {
     CENTER,
     RIGHT,
     LEFT,
-    FEW,
+    TWO,
     SPORADIC,
     RANDOM,
 }

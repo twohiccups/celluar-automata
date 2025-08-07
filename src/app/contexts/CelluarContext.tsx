@@ -16,7 +16,7 @@ export enum InitializationMode {
     CENTER,
     RIGHT,
     LEFT,
-    FEW,
+    TWO,
     SPORADIC,
     RANDOM,
 }
@@ -77,7 +77,7 @@ export const CelluarContextProvider = ({ children }: { children: ReactNode }) =>
             case InitializationMode.LEFT:
                 newState[0] = '1';
                 break;
-            case InitializationMode.FEW:
+            case InitializationMode.TWO:
                 newState[Math.floor(width / 3)] = '1';
                 newState[Math.floor((2 * width) / 3)] = '1';
                 break;

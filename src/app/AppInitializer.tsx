@@ -11,7 +11,7 @@ export function AppInitializer() {
 
     const [hasInitialized, setHasInitialized] = useState(false);
     const [hasAppliedUrlConfig, setHasAppliedUrlConfig] = useState(false);
-    const [pendingRuleNumber, setPendingRuleNumber] = useState<string | null>(null);
+    const [pendingRuleNumber, setPendingRuleNumber] = useState<string | null>('90');
 
     useEffect(() => {
         if (hasInitialized || hasAppliedUrlConfig) return;

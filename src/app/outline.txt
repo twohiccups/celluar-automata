@@ -1,9 +1,6 @@
 Issues:
 
-* High Speed + Large Width = Unstraight diagonal lines
---- Reproduce: 8888779, rule legnth 3, num states - 4, scroll speed 1, 
 * Flicker
-* Large Inputs
 * Logical width - changing from lower to higher, the new doesn't take entirity of space
 
 
