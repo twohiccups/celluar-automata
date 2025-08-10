@@ -7,7 +7,6 @@ import SectionTitle from "./SectionTitle";
 import { tooltips } from "../tooltips";
 
 export default function RuleInput() {
-
     const { initializeState } = useCelluarContext();
     const {
         currentRuleNumber,
@@ -22,6 +21,12 @@ export default function RuleInput() {
         setInputValue(currentRuleNumber.toString());
     }, [currentRuleNumber]);
 
+    // Apply helper: select rule + initialize immediately
+    const applyRuleAndInit = (value: string) => {
+        selectRule(value);
+        initializeState();
+        setInputValue(value); // keep input in sync even if value === currentRuleNumber
+    };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         let val = e.target.value;
@@ -41,15 +46,13 @@ export default function RuleInput() {
         setInputValue(val);
     };
 
-
+    // When user types a new valid number, apply it
     useEffect(() => {
         if (/^\d+$/.test(inputValue)) {
-            selectRule(inputValue);
-            initializeState();
+            applyRuleAndInit(inputValue);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [inputValue]);
-
-
 
     const totalAssignments = BigInt(numStates) ** BigInt(numStates ** ruleLength);
     const maxAssignable: number | bigint | undefined =
@@ -59,11 +62,10 @@ export default function RuleInput() {
 
     const handleRandom = () => {
         const max = BigInt(numStates) ** (BigInt(numStates) ** BigInt(ruleLength));
-
-        // Generate a random bigint within [0, max)
         const maxDigits = max.toString().length;
 
         let randomBigInt = BigInt(0);
+        // generate non-zero; can still equal current, which is fine because we force apply below
         while (randomBigInt >= max || randomBigInt === BigInt(0)) {
             let str = '';
             for (let i = 0; i < maxDigits; i++) {
@@ -73,10 +75,10 @@ export default function RuleInput() {
             randomBigInt = BigInt(str);
         }
 
-        setInputValue(randomBigInt.toString());
+        const value = randomBigInt.toString();
+        // Apply immediately so initializeState always runs (even if value === current)
+        applyRuleAndInit(value);
     };
-
-
 
     const handleStart = () => {
         initializeState(); // Re-start current rule from initial state
@@ -85,13 +87,9 @@ export default function RuleInput() {
     function formatMaxAssignable(): string {
         try {
             const total = BigInt(numStates) ** (BigInt(numStates) ** BigInt(ruleLength));
-
-            // If total is small enough, show full number with commas
             if (total < 1_000_000_000_000_000n) {
                 return total.toLocaleString();
             }
-
-            // Otherwise, format in scientific notation
             const str = total.toString();
             const base = `${str[0]}.${str.slice(1, 4)}`;
             const exponent = str.length - 1;
@@ -101,24 +99,21 @@ export default function RuleInput() {
         }
     }
 
-
-
-
     return (
-        <section className="mt">
+        <section className="space-y-2">
             <SectionTitle title={'Rule Number'} tooltip={tooltips.ruleNumber} />
 
             <input
                 type="number"
                 value={inputValue}
                 onChange={handleInputChange}
-                className="border rounded px-3 py-2 w-full mb-1"
+                className="border rounded px-3 py-2 w-full"
                 min={0}
                 placeholder="Enter rule number"
             />
 
             {maxAssignable !== undefined && (
-                <p className="text-xs text-gray-600 mb-3">
+                <p className="text-xs text-gray-600">
                     Max rule number:&nbsp;
                     <span className="font-mono break-all">
                         {formatMaxAssignable()}
@@ -133,15 +128,12 @@ export default function RuleInput() {
                 Random Rule
             </button>
 
-
             <button
                 onClick={handleStart}
-                className="w-full mt-2 mb-2 py-2 px-4 bg-blue-600 text-white rounded text-lg font-semibold hover:bg-blue-700 transition"
+                className="w-full py-2 px-4 bg-blue-600 text-white rounded text-lg font-semibold hover:bg-blue-700 transition"
             >
                 Initialize
             </button>
-
-
         </section>
     );
 }
