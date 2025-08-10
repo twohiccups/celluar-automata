@@ -1,254 +1,182 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import RuleInput from '@/app/components/RuleInput';
 import { ExportConfigButton } from '@/app/components/ExportConfigButton';
 import RuleConfigSelectors from '@/app/components/RuleConfigSelectors';
-import SectionTitle from '@/app/components/SectionTitle';
-import { ColorThemeSelector } from '@/app/components/ColorThemeSelector';
 import RuleEditor from '@/app/components/RuleEditor';
+import { ColorThemeSelector } from '@/app/components/ColorThemeSelector';
+
+import InitializationSelector from '@/app/components/InitializationSelector';
+import EdgeModeSelector from '@/app/components/EdgeModeSelector';
+import LogicalWidthSelector from '@/app/components/LogicalWidthSelector';
+import ScrollSpeedSelector from '@/app/components/ScrollSpeedSelector';
 
 import {
-    InitializationMode,
-    EdgeMode,
-    useCelluarContext,
-} from '@/app/contexts/CelluarContext';
-
-import { tooltips } from '@/app/tooltips';
-import { IconChevronUp, IconChevronDown, IconChevronLeft, IconChevronRight } from './Icons';
-
-
-
-// Reuse your existing small selectors
-function InitializationSelector() {
-    const { initializationMode, setInitializationMode } = useCelluarContext();
-    return (
-        <section className="space-y-2">
-            <SectionTitle title="Initialization Mode" tooltip={tooltips.initializationMode} />
-            <div className="flex flex-wrap gap-2">
-                {Object.entries(InitializationMode)
-                    .filter(([k]) => isNaN(Number(k)))
-                    .map(([label, value]) => (
-                        <button
-                            key={label}
-                            onClick={() => setInitializationMode(value as InitializationMode)}
-                            className={`px-3 py-1 border rounded ${initializationMode === value ? 'bg-blue-100 font-bold' : 'hover:bg-gray-100'
-                                }`}
-                        >
-                            {label}
-                        </button>
-                    ))}
-            </div>
-        </section>
-    );
-}
-
-function EdgeModeSelector() {
-    const { edgeMode, setEdgeMode } = useCelluarContext();
-    return (
-        <section className="space-y-2">
-            <SectionTitle title="Edge Mode" tooltip={tooltips.edgeMode} />
-            <div className="flex flex-wrap gap-2">
-                {Object.entries(EdgeMode)
-                    .filter(([k]) => isNaN(Number(k)))
-                    .map(([label, value]) => (
-                        <button
-                            key={label}
-                            onClick={() => setEdgeMode(value as EdgeMode)}
-                            className={`px-3 py-1 border rounded ${edgeMode === value ? 'bg-blue-100 font-bold' : 'hover:bg-gray-100'
-                                }`}
-                        >
-                            {label}
-                        </button>
-                    ))}
-            </div>
-        </section>
-    );
-}
-
-function LogicalWidthSelector() {
-    const { logicalWidth, setLogicalWidth, initializeState } = useCelluarContext();
-    return (
-        <section className="space-y-2">
-            <SectionTitle title="Logical Width" tooltip={tooltips.logicalWidth} />
-            <input
-                type="range"
-                min={100}
-                max={1000}
-                step={50}
-                value={logicalWidth}
-                onChange={(e) => {
-                    const v = Number(e.target.value);
-                    setLogicalWidth(v);
-                    initializeState();
-                }}
-                className="w-full"
-            />
-            <div className="text-sm text-gray-600">
-                {logicalWidth} px wide — approx. {Math.floor(logicalWidth / 4)} cells
-            </div>
-        </section>
-    );
-}
-
-function ScrollSpeedSelector() {
-    const { scrollSpeed, setScrollSpeed } = useCelluarContext();
-    const min = 1,
-        max = 150;
-    const displayedValue = max + min - scrollSpeed;
-    return (
-        <section className="space-y-2">
-            <h3 className="text-lg font-semibold">Scroll Speed</h3>
-            <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600 shrink-0">Slower</span>
-                <input
-                    type="range"
-                    min={min}
-                    max={max}
-                    step={1}
-                    value={displayedValue}
-                    onChange={(e) => {
-                        const raw = Number(e.target.value);
-                        setScrollSpeed(max + min - raw);
-                    }}
-                    className="w-full"
-                />
-                <span className="text-sm text-gray-600 shrink-0">Faster</span>
-            </div>
-        </section>
-    );
-}
+    IconChevronUp,
+    IconChevronDown,
+} from '@/app/components/Icons';
 
 export default function MobileControls() {
-    const [open, setOpen] = useState(true);
-    const [page, setPage] = useState(0);
+    const [open, setOpen] = useState(true);   // open by default
+    const [page, setPage] = useState(0);      // 0..4
+
     const pages = [
         {
-            title: 'Rule',
-            content: (
+            title: 'Rule & Actions',
+            render: () => (
                 <div className="space-y-4">
                     <RuleInput />
                     <div className="flex gap-2">
                         <ExportConfigButton />
                     </div>
+                </div>
+            ),
+        },
+        {
+            title: 'Rule Config',
+            render: () => (
+                <div className="space-y-4">
                     <RuleConfigSelectors />
                     <RuleEditor />
                 </div>
             ),
         },
         {
-            title: 'Behavior',
-            content: (
+            title: 'Init & Edge',
+            render: () => (
                 <div className="space-y-4">
                     <InitializationSelector />
                     <EdgeModeSelector />
-                    <ScrollSpeedSelector />
                 </div>
             ),
         },
         {
-            title: 'Display',
-            content: (
+            title: 'Speed & Width',
+            render: () => (
                 <div className="space-y-4">
+                    <ScrollSpeedSelector />
                     <LogicalWidthSelector />
-                    <ColorThemeSelector />
                 </div>
             ),
         },
-    ];
+        {
+            title: 'Colors',
+            render: () => <ColorThemeSelector />,
+        },
+    ] as const;
 
-    // Touch swipe detection
+    // Looping navigation
+    const last = pages.length - 1;
+    const goPrev = () => setPage((p) => (p === 0 ? last : p - 1));
+    const goNext = () => setPage((p) => (p === last ? 0 : p + 1));
+
+    // Optional swipe to change pages (content is state-switched)
     let startX = 0;
-    let deltaX = 0;
-    const onTouchStart = (e: React.TouchEvent) => {
-        startX = e.touches[0].clientX;
-    };
-    const onTouchMove = (e: React.TouchEvent) => {
-        deltaX = e.touches[0].clientX - startX;
-    };
+    let dx = 0;
+    const onTouchStart = (e: React.TouchEvent) => { startX = e.touches[0].clientX; dx = 0; };
+    const onTouchMove = (e: React.TouchEvent) => { dx = e.touches[0].clientX - startX; };
     const onTouchEnd = () => {
-        const threshold = 48;
-        if (deltaX > threshold && page > 0) setPage(page - 1);
-        else if (deltaX < -threshold && page < pages.length - 1) setPage(page + 1);
+        const t = 48;
+        if (dx > t) goPrev();
+        else if (dx < -t) goNext();
     };
+
+    // Keep the selected chip visible
+    const chipRefs = useRef<(HTMLButtonElement | null)[]>([]);
+    useEffect(() => {
+        const el = chipRefs.current[page];
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
+    }, [page]);
 
     return (
-        <div className="md:hidden">
-            <div className="sticky top-0 z-20 bg-white border-b">
-                <button
-                    onClick={() => setOpen(!open)}
+        <div className="md:hidden fixed inset-x-0 top-0 z-30">
+            {/* Semi-transparent, blurred panel; fixed height when open for stable layout */}
+            <div
+                className={[
+                    'mx-auto w-full bg-white/60 backdrop-blur-sm border-b shadow flex flex-col overflow-hidden transition-[height] duration-300',
+                    open ? 'h-[66vh]' : 'h-[56px]',
+                ].join(' ')}
+            >
+                {/* Header */}
+                <div
                     className="w-full flex items-center justify-between px-4 py-3"
+                    style={{ paddingTop: 'calc(env(safe-area-inset-top,0px) + 0.75rem)' }}
                 >
                     <span className="font-semibold">Settings</span>
-                    {open ? <IconChevronUp className="w-5 h-5" /> : <IconChevronDown className="w-5 h-5" />}
-                </button>
+                    <button
+                        onClick={() => setOpen((v) => !v)}
+                        className="p-1 rounded hover:bg-black/5"
+                        aria-label={open ? 'Collapse settings' : 'Expand settings'}
+                    >
+                        {open ? <IconChevronUp className="w-5 h-5" /> : <IconChevronDown className="w-5 h-5" />}
+                    </button>
+                </div>
 
+                {/* Tabs row */}
                 {open && (
-                    <div className="flex items-center gap-2 px-2 pb-2">
-                        <button
-                            className="p-2 rounded border disabled:opacity-40"
-                            onClick={() => setPage(Math.max(0, page - 1))}
-                            disabled={page === 0}
-                        >
-                            <IconChevronLeft className="w-4 h-4" />
-                        </button>
-                        <div className="flex-1 overflow-hidden">
-                            <div className="flex items-center justify-center gap-2">
-                                {pages.map((p, i) => (
-                                    <button
-                                        key={p.title}
-                                        className={`px-3 py-1 rounded-full text-sm border ${i === page
-                                            ? 'bg-blue-600 text-white border-blue-600'
-                                            : 'hover:bg-gray-100'
-                                            }`}
-                                        onClick={() => setPage(i)}
-                                    >
-                                        {p.title}
-                                    </button>
-                                ))}
+                    <div className="shrink-0 flex items-center gap-2 px-3 pb-2">
+
+                        {/* Scrollable chip row */}
+                        <div className="flex-1 min-w-0">
+                            <div className="chipScroller flex gap-2 overflow-x-auto whitespace-nowrap px-1">
+                                {pages.map((p, i) => {
+                                    const active = i === page;
+                                    return (
+                                        <button
+                                            key={p.title}
+                                            ref={(el) => { chipRefs.current[i] = el; }}
+                                            onClick={() => setPage(i)}
+                                            aria-pressed={active}
+                                            className={[
+                                                'h-9 px-3 rounded-full border text-sm shrink-0 transition',
+                                                active
+                                                    ? 'bg-blue-600 text-white border-blue-600 ring-2 ring-blue-300 font-semibold'
+                                                    : 'bg-white/70 hover:bg-white/90',
+                                            ].join(' ')}
+                                        >
+                                            {p.title}
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
-                        <button
-                            className="p-2 rounded border disabled:opacity-40"
-                            onClick={() => setPage(Math.min(pages.length - 1, page + 1))}
-                            disabled={page === pages.length - 1}
-                        >
-                            <IconChevronRight className="w-4 h-4" />
-                        </button>
+
+
+                    </div>
+                )}
+
+                {/* Content area: render ONLY the active page; scroll inside */}
+                {open && (
+                    <div
+                        className="min-h-0 flex-1 overflow-hidden"
+                        onTouchStart={onTouchStart}
+                        onTouchMove={onTouchMove}
+                        onTouchEnd={onTouchEnd}
+                    >
+                        <div className="h-full overflow-y-auto px-4 pb-4 space-y-4">
+                            {pages[page].render()}
+                        </div>
                     </div>
                 )}
             </div>
 
-            <div
-                className={`bg-gray-50 border-b ${open ? 'max-h-[75vh]' : 'max-h-0'
-                    } overflow-hidden transition-[max-height] duration-300`}
-            >
-                <div
-                    className="relative w-full overflow-hidden"
-                    onTouchStart={onTouchStart}
-                    onTouchMove={onTouchMove}
-                    onTouchEnd={onTouchEnd}
-                >
-                    <div
-                        className="flex transition-transform duration-300"
-                        style={{
-                            transform: `translateX(-${page * 100}%)`,
-                            width: `${pages.length * 100}%`,
-                        }}
-                    >
-                        {pages.map((p) => (
-                            <div
-                                key={p.title}
-                                className="w-full shrink-0 px-4 py-4 space-y-4"
-                                style={{ width: `${100 / pages.length}%` }}
-                            >
-                                {p.content}
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
+            {/* soft separator below panel */}
+            {open && <div className="h-1 w-full bg-gradient-to-b from-black/10 to-transparent pointer-events-none" />}
+
+            {/* Local-only styles to hide chip scroller scrollbars (no global CSS) */}
+            <style jsx>{`
+        .chipScroller {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .chipScroller::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
         </div>
     );
 }

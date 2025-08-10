@@ -11,7 +11,6 @@ import InitializationSelector from './InitializationSelector';
 import ScrollSpeedSelector from './ScrollSpeedSelector';
 
 
-
 export default function ControlPanel() {
     return (
         <div className="mb-6 p-4 bg-gray-50 rounded shadow space-y-6">

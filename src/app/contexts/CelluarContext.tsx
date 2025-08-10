@@ -137,16 +137,12 @@ export const CelluarContextProvider = ({ children }: { children: ReactNode }) =>
         setColorPalette,
     };
 
-    // Mount-only: initialize once (don't force a theme here; default palette already set or URL may override)
     useEffect(() => {
         initializeState();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // Re-init state when width changes (no theme changes here)
     useEffect(() => {
         initializeState();
-        // add ruleLength if you also want to re-init when neighborhood size changes
     }, [logicalWidth /*, ruleLength */]);
 
     return <CelluarContext.Provider value={value}>{children}</CelluarContext.Provider>;
