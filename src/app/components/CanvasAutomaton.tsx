@@ -86,10 +86,16 @@ export default function CanvasAutomaton() {
     }, [logicalWidth]);
 
     return (
-        <canvas
-            ref={canvasRef}
-            className="border border-gray-300"
-            style={{ imageRendering: 'pixelated' }}
-        />
+        <div
+            className="fixed md:static left-0 right-0 bottom-0 md:bottom-auto z-10 flex justify-center"
+            style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+        >
+            <canvas
+                ref={canvasRef}
+                className="border border-gray-300"
+                style={{ imageRendering: 'pixelated', width: `${VIEWPORT_WIDTH}px`, height: `${VIEWPORT_HEIGHT}px` }}
+            />
+        </div>
     );
+
 }
