@@ -7,7 +7,7 @@ export default function CanvasAutomaton() {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const { logicalWidth, scrollSpeed, currentState, nextStep, colorPalette } = useCelluarContext();
 
-    const VIEWPORT_WIDTH = 1000;
+    const VIEWPORT_WIDTH = 1200;
     const VIEWPORT_HEIGHT = 800;
 
     const stateRef = useRef(currentState);
