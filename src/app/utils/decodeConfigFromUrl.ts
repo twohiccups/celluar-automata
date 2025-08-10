@@ -1,4 +1,3 @@
-// utils/decodeConfigFromUrl.ts
 import { AppSnapshot, InitializationMode, EdgeMode } from '@/app/types';
 
 export function decodeConfigFromUrl(): AppSnapshot | null {

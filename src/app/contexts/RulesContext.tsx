@@ -9,7 +9,7 @@ export interface RuleSet {
 interface RulesContextProps {
     ruleLength: number;
     ruleSet: RuleSet;
-    currentRuleNumber: string; // changed to string
+    currentRuleNumber: string; // decimal string
     numStates: number;
 
     // Core logic
@@ -56,10 +56,15 @@ export const RulesProvider = ({ children }: { children: React.ReactNode }) => {
         for (let i = 0; i < totalKeys; i++) {
             keys.push(i.toString(numStates).padStart(ruleLength, '0'));
         }
-
         keys.reverse();
 
-        const baseN = BigInt(ruleStr).toString(numStates).padStart(keys.length, '0');
+        // Convert decimal string -> base-(numStates) string with left padding
+        let baseN = '0';
+        try {
+            baseN = BigInt(ruleStr).toString(numStates).padStart(keys.length, '0');
+        } catch {
+            baseN = '0'.padStart(keys.length, '0');
+        }
 
         const newRules: RuleSet = {};
         for (let i = 0; i < keys.length; i++) {
@@ -70,27 +75,38 @@ export const RulesProvider = ({ children }: { children: React.ReactNode }) => {
         setCurrentRuleNumber(ruleStr);
     }
 
+    // --- BigInt-safe base-N digits -> decimal string
+    function digitsBaseNToDecimalString(digits: string, base: number): string {
+        let acc = 0n;
+        const B = BigInt(base);
+        for (let i = 0; i < digits.length; i++) {
+            const d = BigInt(parseInt(digits[i], base)); // digit value (0..base-1)
+            acc = acc * B + d;
+        }
+        return acc.toString(); // decimal string
+    }
+
     function updateRule(key: string, newValue?: string) {
         setRuleSet((prev) => {
             const current = prev[key];
             if (current === undefined) return prev;
 
             const updatedValue =
-                newValue !== undefined
-                    ? newValue
-                    : ((parseInt(current) + 1) % numStates).toString();
+                newValue !== undefined ? newValue : ((parseInt(current) + 1) % numStates).toString();
 
             const newRules = {
                 ...prev,
                 [key]: updatedValue,
             };
 
-            // Recalculate rule number (safe up to a limit)
+            // Recalculate rule number EXACTLY (no Number, no binary hop)
+            // Sort keys descending as your decode expects (highest pattern first)
             const keys = Object.keys(newRules).sort().reverse();
-            const digits = keys.map((k) => newRules[k] ?? '0').join('');
+            const digits = keys.map((k) => newRules[k] ?? '0').join(''); // base-(numStates) digit string
+
             try {
-                const newRuleNum = BigInt(`0b${parseInt(digits, numStates).toString(2)}`);
-                setCurrentRuleNumber(newRuleNum.toString());
+                const decimal = digitsBaseNToDecimalString(digits, numStates);
+                setCurrentRuleNumber(decimal);
             } catch {
                 setCurrentRuleNumber('0'); // fallback
             }

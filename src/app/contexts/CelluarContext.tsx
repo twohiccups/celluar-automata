@@ -5,8 +5,6 @@ import { createContext, ReactNode, useContext, useEffect, useState } from 'react
 import { themes, ThemeName } from '@/app/themes';
 import { useRulesContext } from './RulesContext';
 
-
-
 export enum EdgeMode {
     STATIC,
     MODULAR,
@@ -20,8 +18,6 @@ export enum InitializationMode {
     SPORADIC,
     RANDOM,
 }
-
-
 
 interface CelluarContextProps {
     logicalWidth: number;
@@ -45,23 +41,22 @@ interface CelluarContextProps {
     setEdgeMode: (mode: EdgeMode) => void;
     setColorScheme: (scheme: string) => void;
     setColorPalette: (colors: string[]) => void;
-
 }
 
 export const CelluarContext = createContext<CelluarContextProps | undefined>(undefined);
 
 export const CelluarContextProvider = ({ children }: { children: ReactNode }) => {
     const [currentState, setCurrentState] = useState<string[]>([]);
-    const [scrollSpeed, setScrollSpeed] = useState<number>(40)
-    const [colorScheme, setColorScheme] = useState("Basic");
-    const [initializationMode, setInitializationMode] = useState<InitializationMode>(InitializationMode.CENTER);
+    const [scrollSpeed, setScrollSpeed] = useState<number>(40);
+    const [colorScheme, setColorScheme] = useState('Basic');
+    const [initializationMode, setInitializationMode] = useState<InitializationMode>(
+        InitializationMode.CENTER
+    );
     const [edgeMode, setEdgeMode] = useState(EdgeMode.STATIC);
     const [colorPalette, setColorPalette] = useState<string[]>(themes.Basic); // default palette
     const [logicalWidth, setLogicalWidth] = useState<number>(300);
 
-    const { ruleLength, ruleSet } = useRulesContext()
-
-
+    const { ruleLength, ruleSet } = useRulesContext();
 
     function initializeState() {
         const width = logicalWidth;
@@ -82,20 +77,15 @@ export const CelluarContextProvider = ({ children }: { children: ReactNode }) =>
                 newState[Math.floor((2 * width) / 3)] = '1';
                 break;
             case InitializationMode.SPORADIC:
-                for (let i = 0; i < width; i++) {
-                    newState[i] = Math.random() < 0.1 ? '1' : '0';
-                }
+                for (let i = 0; i < width; i++) newState[i] = Math.random() < 0.1 ? '1' : '0';
                 break;
             case InitializationMode.RANDOM:
-                for (let i = 0; i < width; i++) {
-                    newState[i] = Math.random() < 0.5 ? '1' : '0';
-                }
+                for (let i = 0; i < width; i++) newState[i] = Math.random() < 0.5 ? '1' : '0';
                 break;
         }
 
         setCurrentState(newState);
     }
-
 
     function nextStep() {
         const len = currentState.length;
@@ -122,12 +112,9 @@ export const CelluarContextProvider = ({ children }: { children: ReactNode }) =>
         setCurrentState(newState);
     }
 
-
     function applyTheme(themeName: ThemeName) {
         const theme = themes[themeName];
-        if (theme) {
-            setColorPalette([...theme]); // copy, so it's editable without affecting base
-        }
+        if (theme) setColorPalette([...theme]); // copy, so it's editable without affecting base
     }
 
     const value: CelluarContextProps = {
@@ -150,20 +137,23 @@ export const CelluarContextProvider = ({ children }: { children: ReactNode }) =>
         setColorPalette,
     };
 
+    // Mount-only: initialize once (don't force a theme here; default palette already set or URL may override)
     useEffect(() => {
-        applyTheme('Basic');
         initializeState();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [logicalWidth]);
+    }, []);
 
+    // Re-init state when width changes (no theme changes here)
+    useEffect(() => {
+        initializeState();
+        // add ruleLength if you also want to re-init when neighborhood size changes
+    }, [logicalWidth /*, ruleLength */]);
 
     return <CelluarContext.Provider value={value}>{children}</CelluarContext.Provider>;
 };
 
 export function useCelluarContext() {
     const context = useContext(CelluarContext);
-    if (!context) {
-        throw new Error('useCelluarContext must be used within a CelluarContextProvider');
-    }
+    if (!context) throw new Error('useCelluarContext must be used within a CelluarContextProvider');
     return context;
 }
