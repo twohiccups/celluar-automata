@@ -1,9 +1,10 @@
 Issues:
 
-* Flicker
 * Logical width - changing from lower to higher, the new doesn't take entirity of space
 
 
+
+* Large number, when I change rule in the set, all states go Zero
 
 
 TODO

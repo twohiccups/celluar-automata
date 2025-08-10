@@ -25,7 +25,7 @@ export default function RuleConfigSelectors() {
                             key={len}
                             onClick={() => setRuleLengthAndReset(len)}
                             className={`w-10 h-10 rounded-full flex items-center justify-center border transition ${ruleLength === len
-                                ? 'bg-blue-500 text-white font-bold'
+                                ? 'bg-blue-600 text-white font-bold'
                                 : 'hover:bg-gray-100'
                                 }`}
                         >
@@ -43,7 +43,7 @@ export default function RuleConfigSelectors() {
                             key={n}
                             onClick={() => setNumStatesAndReset(n)}
                             className={`w-10 h-10 rounded-full flex items-center justify-center border transition ${numStates === n
-                                ? 'bg-blue-500 text-white font-bold'
+                                ? 'bg-blue-600 text-white font-bold'
                                 : 'hover:bg-gray-100'
                                 }`}
                         >

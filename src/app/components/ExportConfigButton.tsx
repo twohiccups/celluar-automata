@@ -20,7 +20,7 @@ export function ExportConfigButton() {
     return (
         <button
             onClick={handleCopy}
-            className="mt-4 px-3 py-1 border rounded bg-blue-100 hover:bg-blue-200"
+            className="w-full mb-2 py-2 px-4 bg-green-600 text-white rounded text-lg font-semibold hover:bg-green-700 transition"
         >
             Copy Config URL
         </button>

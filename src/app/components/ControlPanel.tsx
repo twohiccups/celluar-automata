@@ -15,13 +15,11 @@ import RuleConfigSelectors from './RuleConfigSelectors';
 import SectionTitle from './SectionTitle';
 import { tooltips } from '../tooltips';
 
-
-
 function InitializationSelector() {
     const { initializationMode, setInitializationMode } = useCelluarContext();
 
     return (
-        <section>
+        <section className="space-y-2">
             <SectionTitle title={'Initialization Mode'} tooltip={tooltips.initializationMode} />
             <div className="flex flex-wrap gap-2">
                 {Object.entries(InitializationMode)
@@ -30,9 +28,7 @@ function InitializationSelector() {
                         <button
                             key={label}
                             onClick={() => setInitializationMode(value as InitializationMode)}
-                            className={`px-3 py-1 border rounded ${initializationMode === value
-                                ? 'bg-blue-100 font-bold'
-                                : 'hover:bg-gray-100'
+                            className={`px-3 py-1 border rounded ${initializationMode === value ? 'bg-blue-100 font-bold' : 'hover:bg-gray-100'
                                 }`}
                         >
                             {label}
@@ -43,11 +39,10 @@ function InitializationSelector() {
     );
 }
 
-
 function EdgeModeSelector() {
-    const { edgeMode, setEdgeMode } = useCelluarContext()
+    const { edgeMode, setEdgeMode } = useCelluarContext();
     return (
-        <section className="mt-4">
+        <section className="space-y-2">
             <SectionTitle title={'Edge Mode'} tooltip={tooltips.edgeMode} />
             <div className="flex flex-wrap gap-2">
                 {Object.entries(EdgeMode)
@@ -67,14 +62,8 @@ function EdgeModeSelector() {
     );
 }
 
-
-
 function LogicalWidthSelector() {
-    const {
-        logicalWidth,
-        setLogicalWidth,
-        initializeState,
-    } = useCelluarContext();
+    const { logicalWidth, setLogicalWidth, initializeState } = useCelluarContext();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newWidth = Number(e.target.value);
@@ -83,7 +72,7 @@ function LogicalWidthSelector() {
     };
 
     return (
-        <section className="mt-6">
+        <section className="space-y-2">
             <SectionTitle title={'Logical Width'} tooltip={tooltips.logicalWidth} />
             <input
                 type="range"
@@ -94,13 +83,12 @@ function LogicalWidthSelector() {
                 onChange={handleChange}
                 className="w-full"
             />
-            <div className="text-sm text-gray-600 mt-1">
+            <div className="text-sm text-gray-600">
                 {logicalWidth} px wide — approx. {Math.floor(logicalWidth / 4)} cells
             </div>
         </section>
     );
 }
-
 
 function ScrollSpeedSelector() {
     const { scrollSpeed, setScrollSpeed } = useCelluarContext();
@@ -118,8 +106,8 @@ function ScrollSpeedSelector() {
     };
 
     return (
-        <section className="mt-6">
-            <h3 className="text-lg font-semibold mb-2">Scroll Speed</h3>
+        <section className="space-y-2">
+            <h3 className="text-lg font-semibold">Scroll Speed</h3>
             <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-600 shrink-0">Slower</span>
                 <input
@@ -137,11 +125,9 @@ function ScrollSpeedSelector() {
     );
 }
 
-
 export default function ControlPanel() {
-
     return (
-        <div className="mb-6 p-4 bg-gray-50 rounded shadow">
+        <div className="mb-6 p-4 bg-gray-50 rounded shadow space-y-6">
             <RuleInput />
             <ExportConfigButton />
             <RuleConfigSelectors />

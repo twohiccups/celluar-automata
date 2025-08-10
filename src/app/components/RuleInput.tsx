@@ -23,10 +23,24 @@ export default function RuleInput() {
     }, [currentRuleNumber]);
 
 
-
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setInputValue(e.target.value);
+        let val = e.target.value;
+
+        // Remove leading zeros unless it's just "0"
+        val = val.replace(/^0+/, '') || '0';
+
+        if (/^\d+$/.test(val)) {
+            // Clamp to maxAssignable
+            if (BigInt(val) > BigInt(maxAssignable ?? 0)) {
+                val = (maxAssignable ?? 0).toString();
+            }
+        } else {
+            val = '0';
+        }
+
+        setInputValue(val);
     };
+
 
     useEffect(() => {
         if (/^\d+$/.test(inputValue)) {
@@ -91,7 +105,7 @@ export default function RuleInput() {
 
 
     return (
-        <section className="mt-6">
+        <section className="mt">
             <SectionTitle title={'Rule Number'} tooltip={tooltips.ruleNumber} />
 
             <input
