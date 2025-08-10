@@ -13,19 +13,16 @@ import EdgeModeSelector from '@/app/components/EdgeModeSelector';
 import LogicalWidthSelector from '@/app/components/LogicalWidthSelector';
 import ScrollSpeedSelector from '@/app/components/ScrollSpeedSelector';
 
-import {
-    IconChevronUp,
-    IconChevronDown,
-} from '@/app/components/Icons';
+import { IconChevronUp, IconChevronDown } from '@/app/components/Icons';
 
 export default function MobileControls() {
-    const [open, setOpen] = useState(true);   // open by default
-    const [page, setPage] = useState(0);      // 0..4
+    const [open, setOpen] = useState(true);
+    const [page, setPage] = useState(0);
 
     const pages = [
         {
             title: 'Rule & Actions',
-            render: () => (
+            content: (
                 <div className="space-y-4">
                     <RuleInput />
                     <div className="flex gap-2">
@@ -36,7 +33,7 @@ export default function MobileControls() {
         },
         {
             title: 'Rule Config',
-            render: () => (
+            content: (
                 <div className="space-y-4">
                     <RuleConfigSelectors />
                     <RuleEditor />
@@ -45,7 +42,7 @@ export default function MobileControls() {
         },
         {
             title: 'Init & Edge',
-            render: () => (
+            content: (
                 <div className="space-y-4">
                     <InitializationSelector />
                     <EdgeModeSelector />
@@ -54,7 +51,7 @@ export default function MobileControls() {
         },
         {
             title: 'Speed & Width',
-            render: () => (
+            content: (
                 <div className="space-y-4">
                     <ScrollSpeedSelector />
                     <LogicalWidthSelector />
@@ -63,16 +60,14 @@ export default function MobileControls() {
         },
         {
             title: 'Colors',
-            render: () => <ColorThemeSelector />,
+            content: <ColorThemeSelector />,
         },
     ] as const;
 
-    // Looping navigation
     const last = pages.length - 1;
     const goPrev = () => setPage((p) => (p === 0 ? last : p - 1));
     const goNext = () => setPage((p) => (p === last ? 0 : p + 1));
 
-    // Optional swipe to change pages (content is state-switched)
     let startX = 0;
     let dx = 0;
     const onTouchStart = (e: React.TouchEvent) => { startX = e.touches[0].clientX; dx = 0; };
@@ -83,7 +78,6 @@ export default function MobileControls() {
         else if (dx < -t) goNext();
     };
 
-    // Keep the selected chip visible
     const chipRefs = useRef<(HTMLButtonElement | null)[]>([]);
     useEffect(() => {
         const el = chipRefs.current[page];
@@ -94,7 +88,6 @@ export default function MobileControls() {
 
     return (
         <div className="md:hidden fixed inset-x-0 top-0 z-30">
-            {/* Semi-transparent, blurred panel; fixed height when open for stable layout */}
             <div
                 className={[
                     'mx-auto w-full bg-white/60 backdrop-blur-sm border-b shadow flex flex-col overflow-hidden transition-[height] duration-300',
@@ -116,11 +109,8 @@ export default function MobileControls() {
                     </button>
                 </div>
 
-                {/* Tabs row */}
                 {open && (
                     <div className="shrink-0 flex items-center gap-2 px-3 pb-2">
-
-                        {/* Scrollable chip row */}
                         <div className="flex-1 min-w-0">
                             <div className="chipScroller flex gap-2 overflow-x-auto whitespace-nowrap px-1">
                                 {pages.map((p, i) => {
@@ -144,12 +134,10 @@ export default function MobileControls() {
                                 })}
                             </div>
                         </div>
-
-
                     </div>
                 )}
 
-                {/* Content area: render ONLY the active page; scroll inside */}
+                {/* Keep all tabs mounted; just hide inactive ones */}
                 {open && (
                     <div
                         className="min-h-0 flex-1 overflow-hidden"
@@ -157,26 +145,29 @@ export default function MobileControls() {
                         onTouchMove={onTouchMove}
                         onTouchEnd={onTouchEnd}
                     >
-                        <div className="h-full overflow-y-auto px-4 pb-4 space-y-4">
-                            {pages[page].render()}
-                        </div>
+                        {pages.map((p, i) => (
+                            <div
+                                key={p.title}
+                                className={`h-full overflow-y-auto px-4 pb-4 space-y-4 ${i === page ? 'block' : 'hidden'}`}
+                            >
+                                {p.content}
+                            </div>
+                        ))}
                     </div>
                 )}
             </div>
 
-            {/* soft separator below panel */}
             {open && <div className="h-1 w-full bg-gradient-to-b from-black/10 to-transparent pointer-events-none" />}
 
-            {/* Local-only styles to hide chip scroller scrollbars (no global CSS) */}
             <style jsx>{`
-        .chipScroller {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-        .chipScroller::-webkit-scrollbar {
-          display: none;
-        }
-      `}</style>
+                .chipScroller {
+                    -ms-overflow-style: none;
+                    scrollbar-width: none;
+                }
+                .chipScroller::-webkit-scrollbar {
+                    display: none;
+                }
+            `}</style>
         </div>
     );
 }
