@@ -8,7 +8,7 @@ export function decodeConfigFromUrl(): AppSnapshot | null {
     try {
         return {
             ruleLength: parseInt(params.get('length') ?? '3', 10),
-            currentRuleNumber: params.get('rule') ?? '0',
+            currentRuleNumber: params.get('rule') ?? '90',
             numStates: parseInt(params.get('states') ?? '2', 10),
             logicalWidth: parseInt(params.get('width') ?? '300', 10),
             scrollSpeed: parseInt(params.get('speed') ?? '40', 10),

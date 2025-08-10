@@ -1,31 +1,37 @@
 'use client';
 
 import { CelluarContextProvider } from '@/app/contexts/CelluarContext';
+import { RulesProvider } from '@/app/contexts/RulesContext';
+import { AppInitializer } from '@/app/AppInitializer';
+
 import CanvasAutomaton from '@/app/components/CanvasAutomaton';
-import ControlPanel from '@/app/components/ControlPanel';
-import { RulesProvider } from './contexts/RulesContext';
-import { AppInitializer } from './AppInitializer';
+import MobileControls from '@/app/components/MobileControls';
+import DesktopSidebar from '@/app/components/DesktopSidebar';
+
 
 export default function Home() {
-
   return (
     <RulesProvider>
       <CelluarContextProvider>
         <AppInitializer />
+
+        {/* Mobile top sheet */}
+        <MobileControls />
+
         <div className="flex flex-col md:flex-row h-screen max-h-screen overflow-hidden">
-          <div className="flex justify-center items-center flex-1 overflow-hidden p-4">
-            <div className="origin-top scale-wrapper">
-              <CanvasAutomaton />
+          {/* Canvas area: always centered; grows when desktop panel collapses */}
+          <div className="relative flex-1 overflow-hidden">
+            <div className="flex h-full w-full items-center justify-center p-2 md:p-4">
+              <div className="origin-top scale-wrapper">
+                <CanvasAutomaton />
+              </div>
             </div>
           </div>
 
-          <div className="w-full md:w-[350px] shrink-0 overflow-y-auto p-4 bg-white shadow">
-            <ControlPanel
-            />
-          </div>
+          {/* Desktop sidebar (collapsible) */}
+          <DesktopSidebar />
         </div>
-
-      </CelluarContextProvider >
+      </CelluarContextProvider>
     </RulesProvider>
   );
 }

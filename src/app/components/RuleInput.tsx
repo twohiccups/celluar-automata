@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { useCelluarContext } from "../contexts/CelluarContext";
-import { useRulesContext } from "../contexts/RulesContext";
+import { useCelluarContext } from "@/app/contexts/CelluarContext";
+import { useRulesContext } from "@/app/contexts/RulesContext";
 import SectionTitle from "./SectionTitle";
-import { tooltips } from "../tooltips";
+import { tooltips } from "@/app/tooltips";
 
 export default function RuleInput() {
     const { initializeState } = useCelluarContext();
@@ -100,7 +100,7 @@ export default function RuleInput() {
     }
 
     return (
-        <section className="space-y-2">
+        <section className="space-y-2 mb-2">
             <SectionTitle title={'Rule Number'} tooltip={tooltips.ruleNumber} />
 
             <input
@@ -123,7 +123,7 @@ export default function RuleInput() {
 
             <button
                 onClick={handleRandom}
-                className="w-full py-2 px-4 bg-purple-600 text-white rounded text-lg font-semibold hover:bg-purple-700 transition"
+                className="w-full py-2 px-4 bg-violet-700 text-white rounded text-lg font-semibold hover:bg-purple-800 transition"
             >
                 Random Rule
             </button>
