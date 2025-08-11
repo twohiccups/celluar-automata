@@ -5,120 +5,131 @@ import { useCelluarContext } from "../contexts/CelluarContext";
 import { tooltips } from "../tooltips";
 import SectionTitle from "./SectionTitle";
 
-// IMPORTANT: set the same value in CanvasAutomaton
-const VIEWPORT_WIDTH = 1200;
+// IMPORTANT: keep this in sync with CanvasAutomaton
+const VIEWPORT_WIDTH = 1200; // use 1000 if you didn’t change CanvasAutomaton
 
 function getBmpWidth(): number {
-  const dpr = Math.max(1, window.devicePixelRatio || 1);
-  return Math.round(VIEWPORT_WIDTH * dpr);
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    return Math.round(VIEWPORT_WIDTH * dpr);
 }
 
 function computeCrispWidths(bmpW: number): number[] {
-  const out: number[] = [];
-  for (let w = 100; w <= 1000; w++) {
-    if (bmpW % w === 0) out.push(w);
-  }
-  return out;
+    const out: number[] = [];
+    for (let w = 100; w <= 1000; w++) {
+        if (bmpW % w === 0) out.push(w);
+    }
+    return out;
 }
 
 function pickEvenlySpaced(values: number[], count: number): number[] {
-  if (values.length === 0) return [];
-  if (values.length <= count) return [...values];
-  const step = (values.length - 1) / (count - 1);
-  const picked: number[] = [];
-  for (let i = 0; i < count; i++) {
-    picked.push(values[Math.round(i * step)]);
-  }
-  // ensure strictly increasing & unique
-  return Array.from(new Set(picked)).sort((a, b) => a - b);
+    if (values.length === 0) return [];
+    if (values.length <= count) return [...values];
+    const step = (values.length - 1) / (count - 1);
+    const picked: number[] = [];
+    for (let i = 0; i < count; i++) picked.push(values[Math.round(i * step)]);
+    return Array.from(new Set(picked)).sort((a, b) => a - b);
 }
 
-function nearestIndex(value: number, list: number[]): number {
-  if (list.length === 0) return 0;
-  let bestIdx = 0;
-  let bestDist = Math.abs(list[0] - value);
-  for (let i = 1; i < list.length; i++) {
-    const d = Math.abs(list[i] - value);
-    if (d < bestDist) {
-      bestDist = d;
-      bestIdx = i;
+function nearestIndex(value: number | undefined, list: number[]): number {
+    if (!list.length) return 0;
+    if (value == null) return 0;
+    let bestIdx = 0, bestDist = Math.abs(list[0] - value);
+    for (let i = 1; i < list.length; i++) {
+        const d = Math.abs(list[i] - value);
+        if (d < bestDist) { bestIdx = i; bestDist = d; }
     }
-  }
-  return bestIdx;
+    return bestIdx;
 }
 
 export default function LogicalWidthSelector() {
-  const { logicalWidth, setLogicalWidth, initializeState } = useCelluarContext();
+    const { logicalWidth, setLogicalWidth, initializeState } = useCelluarContext();
 
-  const [bmpW, setBmpW] = useState<number>(
-    typeof window === 'undefined' ? VIEWPORT_WIDTH : getBmpWidth()
-  );
+    // 1) Mount gate for DPR-dependent stuff
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => { setMounted(true); }, []);
 
-  // Recompute when DPR/zoom changes
-  useEffect(() => {
-    const update = () => setBmpW(getBmpWidth());
-    update();
-    window.addEventListener('resize', update);
-    if (window.visualViewport) window.visualViewport.addEventListener('resize', update);
-    return () => {
-      window.removeEventListener('resize', update);
-      if (window.visualViewport) window.visualViewport.removeEventListener('resize', update);
-    };
-  }, []);
+    // 2) bmpW: safe default for SSR, real value after mount
+    const [bmpW, setBmpW] = useState<number>(VIEWPORT_WIDTH);
+    useEffect(() => {
+        if (!mounted) return;
+        const update = () => setBmpW(getBmpWidth());
+        update();
+        window.addEventListener('resize', update);
+        if (window.visualViewport) window.visualViewport.addEventListener('resize', update);
+        return () => {
+            window.removeEventListener('resize', update);
+            if (window.visualViewport) window.visualViewport.removeEventListener('resize', update);
+        };
+    }, [mounted]);
 
-  const crispWidths = useMemo(() => computeCrispWidths(bmpW), [bmpW]);
-  const sliderValues = useMemo(() => pickEvenlySpaced(crispWidths, 6), [crispWidths]);
+    const crispWidths = useMemo(
+        () => (mounted ? computeCrispWidths(bmpW) : []),
+        [mounted, bmpW]
+    );
+    const sliderValues = useMemo(
+        () => (mounted ? pickEvenlySpaced(crispWidths, 6) : []),
+        [mounted, crispWidths]
+    );
 
-  // Maintain a safe selected index to avoid NaN issues
-  const [selectedIdx, setSelectedIdx] = useState<number>(() =>
-    nearestIndex(logicalWidth, sliderValues)
-  );
+    // 3) Controlled slider index at all times (never undefined)
+    const [selectedIdx, setSelectedIdx] = useState(0);
 
-  // If device DPR/zoom changes, re-align selection and context
-  useEffect(() => {
-    const idx = nearestIndex(logicalWidth, sliderValues);
-    setSelectedIdx(idx);
-    const snapped = sliderValues[idx];
-    if (snapped != null && snapped !== logicalWidth) {
-      setLogicalWidth(snapped);
-      initializeState();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sliderValues]);
+    // Align with context value when options change
+    useEffect(() => {
+        if (!mounted || sliderValues.length === 0) return;
+        const idx = nearestIndex(logicalWidth, sliderValues);
+        setSelectedIdx(idx);
+        const snapped = sliderValues[idx];
+        if (snapped != null && snapped !== logicalWidth) {
+            setLogicalWidth(snapped);
+            initializeState();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [mounted, sliderValues]);
 
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const idx = Number(e.target.value);
-    const clampedIdx = Math.max(0, Math.min(idx, sliderValues.length - 1));
-    setSelectedIdx(clampedIdx);
-    const snapped = sliderValues[clampedIdx];
-    if (snapped != null && snapped !== logicalWidth) {
-      setLogicalWidth(snapped);
-      initializeState(); // Reset canvas to fill space
-    }
-  }, [sliderValues, logicalWidth, setLogicalWidth, initializeState]);
+    const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        const idx = Number(e.target.value);
+        const clampedIdx = Math.max(0, Math.min(idx, Math.max(0, sliderValues.length - 1)));
+        setSelectedIdx(clampedIdx);
+        const snapped = sliderValues[clampedIdx];
+        if (snapped != null && snapped !== logicalWidth) {
+            setLogicalWidth(snapped);
+            initializeState();
+        }
+    }, [sliderValues, logicalWidth, setLogicalWidth, initializeState]);
 
-  return (
-    <section className="space-y-2">
-      <SectionTitle title={'Logical Width'} tooltip={tooltips.logicalWidth} />
-      <input
-        type="range"
-        min={0}
-        max={Math.max(0, sliderValues.length - 1)}
-        step={1}
-        value={selectedIdx}
-        onChange={handleChange}
-        className="w-full"
-      />
-      <div className="flex justify-between text-xs text-gray-500">
-        {sliderValues.map((v, i) => (
-          <span key={v} style={{ transform: 'translateX(-50%)' }}>
-            {v}
-          </span>
-        ))}
-      </div>
-      <div className="text-sm text-gray-600">
-        {sliderValues[selectedIdx] ?? logicalWidth} px wide — approx. {Math.floor((sliderValues[selectedIdx] ?? logicalWidth) / 4)} cells
-      </div>
-    </section>
-  );
+    // --- Always-controlled slider (no uncontrolled/controlled flip) ---
+    const maxIdx = Math.max(0, sliderValues.length - 1);
+    const currentIdx = Math.min(selectedIdx, maxIdx);
+    const currentWidth = sliderValues[currentIdx];
+
+    return (
+        <section className="space-y-2">
+            <SectionTitle title={'Logical Width'} tooltip={tooltips.logicalWidth} />
+            <input
+                type="range"
+                min={0}
+                max={maxIdx}
+                step={1}
+                value={currentIdx}          // <-- controlled from first render
+                onChange={handleChange}
+                className="w-full"
+                disabled={!mounted || sliderValues.length === 0}
+                suppressHydrationWarning    // avoid warnings if attributes differ before/after mount
+            />
+
+            {/* Show ticks only when mounted to avoid SSR text mismatch */}
+            {mounted && sliderValues.length > 0 && (
+                <div className="flex justify-between text-xs text-gray-500" suppressHydrationWarning>
+                    {sliderValues.map((v) => (
+                        <span key={v} style={{ transform: 'translateX(-50%)' }}>{v}</span>
+                    ))}
+                </div>
+            )}
+
+            <div className="text-sm text-gray-600">
+                {currentWidth ?? '—'} px wide — approx. {currentWidth ? Math.floor(currentWidth / 4) : '—'} cells
+            </div>
+        </section>
+    );
 }
