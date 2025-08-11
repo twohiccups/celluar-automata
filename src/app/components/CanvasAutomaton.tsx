@@ -2,13 +2,13 @@
 
 import { useEffect, useRef } from 'react';
 import { useCelluarContext } from '@/app/contexts/CelluarContext';
+import { VIEWPORT_HEIGHT, VIEWPORT_WIDTH } from '../const';
 
 export default function CanvasAutomaton() {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const { logicalWidth, scrollSpeed, currentState, nextStep, colorPalette } = useCelluarContext();
 
-    const VIEWPORT_WIDTH = 1200;
-    const VIEWPORT_HEIGHT = 800;
+
 
     const stateRef = useRef(currentState);
     const nextStepRef = useRef(nextStep);

@@ -4,9 +4,9 @@ import { useEffect, useMemo, useState, useCallback } from 'react';
 import { useCelluarContext } from "../contexts/CelluarContext";
 import { tooltips } from "../tooltips";
 import SectionTitle from "./SectionTitle";
+import { VIEWPORT_WIDTH } from '../const';
 
 // IMPORTANT: keep this in sync with CanvasAutomaton
-const VIEWPORT_WIDTH = 1200; // use 1000 if you didn’t change CanvasAutomaton
 
 function getBmpWidth(): number {
     const dpr = Math.max(1, window.devicePixelRatio || 1);

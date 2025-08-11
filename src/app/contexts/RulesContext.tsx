@@ -49,22 +49,36 @@ export const RulesProvider = ({ children }: { children: React.ReactNode }) => {
     setCurrentRuleNumber('0');
   }
 
-  function selectRule(ruleStr: string) {
-    const totalKeys = numStates ** ruleLength;
+  function pickRandomRule(length: number, states: number): string {
+    const max = BigInt(states) ** (BigInt(states) ** BigInt(length));
+    const maxDigits = max.toString().length;
+
+    let randomBigInt = 0n;
+    while (randomBigInt >= max || randomBigInt === 0n) {
+      let str = '';
+      for (let i = 0; i < maxDigits; i++) {
+        str += Math.floor(Math.random() * 10);
+      }
+      str = str.replace(/^0+/, '') || '0';
+      randomBigInt = BigInt(str);
+    }
+    return randomBigInt.toString();
+  }
+
+  // version of selectRule that uses explicit params (avoids async state race)
+  function selectRuleWith(ruleStr: string, length: number, states: number) {
+    const totalKeys = states ** length;
 
     const keys: string[] = [];
     for (let i = 0; i < totalKeys; i++) {
-      keys.push(i.toString(numStates).padStart(ruleLength, '0'));
+      keys.push(i.toString(states).padStart(length, '0'));
     }
     keys.reverse();
 
-    // Convert decimal string -> base-(numStates) string with left padding
-    let baseN = '0';
+    let baseN = '0'.padStart(keys.length, '0');
     try {
-      baseN = BigInt(ruleStr).toString(numStates).padStart(keys.length, '0');
-    } catch {
-      baseN = '0'.padStart(keys.length, '0');
-    }
+      baseN = BigInt(ruleStr).toString(states).padStart(keys.length, '0');
+    } catch { }
 
     const newRules: RuleSet = {};
     for (let i = 0; i < keys.length; i++) {
@@ -73,6 +87,11 @@ export const RulesProvider = ({ children }: { children: React.ReactNode }) => {
 
     setRuleSet(newRules);
     setCurrentRuleNumber(ruleStr);
+  }
+
+  // keep old API, now delegates
+  function selectRule(ruleStr: string) {
+    selectRuleWith(ruleStr, ruleLength, numStates);
   }
 
   // --- BigInt-safe base-N digits -> decimal string
@@ -115,14 +134,19 @@ export const RulesProvider = ({ children }: { children: React.ReactNode }) => {
     });
   }
 
+  // update these to randomize right away
   function setRuleLengthAndReset(length: number) {
     setRuleLength(length);
     generateRuleSet(length, numStates);
+    const randomRule = pickRandomRule(length, numStates);
+    selectRuleWith(randomRule, length, numStates);
   }
 
   function setNumStatesAndReset(count: number) {
     setNumStates(count);
     generateRuleSet(ruleLength, count);
+    const randomRule = pickRandomRule(ruleLength, count);
+    selectRuleWith(randomRule, ruleLength, count);
   }
 
   return (
