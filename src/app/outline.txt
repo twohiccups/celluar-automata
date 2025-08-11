@@ -13,3 +13,6 @@ TODO
 TODO 2
 Actual Tooltips
 INFO PAGE
+
+
+http://localhost:3000/?rule=3640935756774&length=3&states=3&width=750&speed=1&init=0&edge=1&colors=%5B%22%2351b2f9%22%2C%22%23ff4242%22%2C%22%23000000%22%2C%22%23000000%22%2C%22%23000000%22%2C%22%23000000%22%5D

@@ -12,7 +12,7 @@ export default function RuleConfigSelectors() {
         setRuleLengthAndReset,
     } = useRulesContext();
 
-    const ruleLengths = [2, 3, 4, 5];
+    const ruleLengths = [2, 3, 4, 5, 6];
     const numStatesOptions = [2, 3, 4, 5, 6];
 
     return (
